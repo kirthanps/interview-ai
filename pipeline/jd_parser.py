@@ -4,52 +4,26 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 from pathlib import Path
 from typing import Any, Dict, List
 
 import chromadb
 from langchain_core.prompts import PromptTemplate
-from langchain_groq import ChatGroq
 
 from utils.constants import (
     INDIAN_JD_COLLECTION,
     INTERVIEW_QA_COLLECTION,
 )
 from utils.embedding_provider import embed_query_text
+from utils.groq_helpers import (
+    build_groq_llm,
+    get_groq_model_candidates,
+    is_model_decommission_error,
+)
 
 logger = logging.getLogger(__name__)
 
-GROQ_FALLBACK_MODELS = [
-    "llama-3.3-70b-versatile",
-    "llama-3.1-8b-instant",
-    "llama3-70b-8192",
-]
 GROQ_PARSE_TEMPERATURE = 0.5
-
-
-def _read_env_value_from_file(key: str, env_file: str = ".env") -> str:
-    """Read a single environment value from a .env-style file."""
-    path = Path(env_file)
-    if not path.exists():
-        return ""
-
-    try:
-        for raw_line in path.read_text(encoding="utf-8").splitlines():
-            line = raw_line.strip()
-            if not line or line.startswith("#") or "=" not in line:
-                continue
-
-            k, v = line.split("=", 1)
-            if k.strip() != key:
-                continue
-
-            value = v.strip().strip('"').strip("'")
-            return value
-    except Exception:
-        logger.exception("Failed reading %s for key %s", env_file, key)
-
-    return ""
 
 
 def _load_prompt_template(prompt_path: str) -> str:
@@ -98,66 +72,6 @@ def _normalize_string_list(value: Any) -> List[str]:
     return [str(value).strip()] if str(value).strip() else []
 
 
-def _build_groq_llm(temperature: float) -> ChatGroq:
-    """Create a GROQ chat model from environment configuration."""
-    return _build_groq_llm_for_model(
-        model_name=_get_groq_model_candidates()[0],
-        temperature=temperature,
-    )
-
-
-def _get_groq_model_candidates() -> List[str]:
-    """Resolve Groq model candidates from env/.env with safe defaults."""
-    explicit = os.getenv(
-        "GROQ_MODEL") or _read_env_value_from_file("GROQ_MODEL")
-    candidates = []
-
-    if explicit and explicit.strip():
-        candidates.append(explicit.strip())
-
-    extra = os.getenv("GROQ_MODEL_CANDIDATES") or _read_env_value_from_file(
-        "GROQ_MODEL_CANDIDATES")
-    if extra:
-        for item in extra.split(","):
-            model_name = item.strip()
-            if model_name:
-                candidates.append(model_name)
-
-    candidates.extend(GROQ_FALLBACK_MODELS)
-
-    # Keep order while removing duplicates.
-    unique: List[str] = []
-    seen = set()
-    for item in candidates:
-        if item in seen:
-            continue
-        unique.append(item)
-        seen.add(item)
-
-    return unique
-
-
-def _is_model_decommission_error(exc: Exception) -> bool:
-    """Detect known Groq model decommission errors for retry fallback."""
-    text = str(exc).lower()
-    return "model_decommissioned" in text or "decommissioned" in text
-
-
-def _build_groq_llm_for_model(model_name: str, temperature: float) -> ChatGroq:
-    """Create a GROQ chat model for a specific model name."""
-    api_key = os.getenv(
-        "GROQ_API_KEY") or _read_env_value_from_file("GROQ_API_KEY")
-    if not api_key:
-        raise ValueError(
-            "GROQ_API_KEY is missing. Add it to your .env/environment.")
-
-    return ChatGroq(
-        model=model_name,
-        temperature=temperature,
-        groq_api_key=api_key,
-    )
-
-
 def parse_jd_with_llm(jd_text: str, llm: Any | None = None) -> Dict[str, Any]:
     """Parse job-description text into structured fields using GROQ.
 
@@ -187,9 +101,9 @@ def parse_jd_with_llm(jd_text: str, llm: Any | None = None) -> Dict[str, Any]:
         else:
             response = None
             last_error: Exception | None = None
-            for model_name in _get_groq_model_candidates():
+            for model_name in get_groq_model_candidates():
                 try:
-                    model = _build_groq_llm_for_model(
+                    model = build_groq_llm(
                         model_name=model_name,
                         temperature=GROQ_PARSE_TEMPERATURE,
                     )
@@ -199,7 +113,7 @@ def parse_jd_with_llm(jd_text: str, llm: Any | None = None) -> Dict[str, Any]:
                     break
                 except Exception as exc:
                     last_error = exc
-                    if _is_model_decommission_error(exc):
+                    if is_model_decommission_error(exc):
                         logger.warning(
                             "GROQ model unavailable/decommissioned, trying next model: %s",
                             model_name,

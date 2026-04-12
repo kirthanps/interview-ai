@@ -4,53 +4,28 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List
 
 import chromadb
 from langchain_core.prompts import PromptTemplate
-from langchain_groq import ChatGroq
 
 from pipeline.jd_parser import (
     get_question_distribution,
     retrieve_few_shot_examples,
 )
+from utils.groq_helpers import (
+    build_groq_llm,
+    get_groq_model_candidates,
+    is_model_decommission_error,
+)
 
 logger = logging.getLogger(__name__)
 
-GROQ_FALLBACK_MODELS = [
-    "llama-3.3-70b-versatile",
-    "llama-3.1-8b-instant",
-    "llama3-70b-8192",
-]
 GROQ_QUESTION_TEMPERATURE = 0.7
 ALLOWED_TYPES = {"technical", "hr", "system_design", "situational"}
 ALLOWED_DIFFICULTY = {"easy", "medium", "hard"}
-
-
-def _read_env_value_from_file(key: str, env_file: str = ".env") -> str:
-    """Read a single environment value from a .env-style file."""
-    path = Path(env_file)
-    if not path.exists():
-        return ""
-
-    try:
-        for raw_line in path.read_text(encoding="utf-8").splitlines():
-            line = raw_line.strip()
-            if not line or line.startswith("#") or "=" not in line:
-                continue
-
-            k, v = line.split("=", 1)
-            if k.strip() != key:
-                continue
-
-            return v.strip().strip('"').strip("'")
-    except Exception:
-        logger.exception("Failed reading %s for key %s", env_file, key)
-
-    return ""
 
 
 @dataclass
@@ -71,61 +46,6 @@ def _load_prompt_template(prompt_path: str) -> str:
     if not path.exists():
         raise FileNotFoundError(f"Prompt file not found: {prompt_path}")
     return path.read_text(encoding="utf-8")
-
-
-def _build_groq_llm(temperature: float) -> ChatGroq:
-    return _build_groq_llm_for_model(
-        model_name=_get_groq_model_candidates()[0],
-        temperature=temperature,
-    )
-
-
-def _get_groq_model_candidates() -> List[str]:
-    """Resolve Groq model candidates from env/.env with safe defaults."""
-    explicit = os.getenv(
-        "GROQ_MODEL") or _read_env_value_from_file("GROQ_MODEL")
-    candidates = []
-
-    if explicit and explicit.strip():
-        candidates.append(explicit.strip())
-
-    extra = os.getenv("GROQ_MODEL_CANDIDATES") or _read_env_value_from_file(
-        "GROQ_MODEL_CANDIDATES")
-    if extra:
-        for item in extra.split(","):
-            model_name = item.strip()
-            if model_name:
-                candidates.append(model_name)
-
-    candidates.extend(GROQ_FALLBACK_MODELS)
-
-    unique: List[str] = []
-    seen = set()
-    for item in candidates:
-        if item in seen:
-            continue
-        unique.append(item)
-        seen.add(item)
-    return unique
-
-
-def _is_model_decommission_error(exc: Exception) -> bool:
-    text = str(exc).lower()
-    return "model_decommissioned" in text or "decommissioned" in text
-
-
-def _build_groq_llm_for_model(model_name: str, temperature: float) -> ChatGroq:
-    api_key = os.getenv(
-        "GROQ_API_KEY") or _read_env_value_from_file("GROQ_API_KEY")
-    if not api_key:
-        raise ValueError(
-            "GROQ_API_KEY is missing. Add it to your .env/environment.")
-
-    return ChatGroq(
-        model=model_name,
-        temperature=temperature,
-        groq_api_key=api_key,
-    )
 
 
 def _extract_llm_text(response: Any) -> str:
@@ -249,9 +169,9 @@ def generate_questions(
         else:
             response = None
             last_error: Exception | None = None
-            for model_name in _get_groq_model_candidates():
+            for model_name in get_groq_model_candidates():
                 try:
-                    model = _build_groq_llm_for_model(
+                    model = build_groq_llm(
                         model_name=model_name,
                         temperature=GROQ_QUESTION_TEMPERATURE,
                     )
@@ -261,7 +181,7 @@ def generate_questions(
                     break
                 except Exception as exc:
                     last_error = exc
-                    if _is_model_decommission_error(exc):
+                    if is_model_decommission_error(exc):
                         logger.warning(
                             "GROQ model unavailable/decommissioned, trying next model: %s",
                             model_name,

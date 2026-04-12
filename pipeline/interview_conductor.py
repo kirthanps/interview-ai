@@ -8,10 +8,9 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from pipeline.question_generator import Question as GeneratedQuestion
+from utils.constants import MIN_ANSWER_LENGTH
 
 logger = logging.getLogger(__name__)
-
-MIN_ANSWER_LENGTH = 20
 
 try:
     from langchain.memory import ConversationBufferMemory  # type: ignore
