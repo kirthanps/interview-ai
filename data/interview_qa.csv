@@ -1,0 +1,4 @@
+question,answer,category
+What is Python?,A high-level programming language used in backend and data systems.,technical
+How do you handle API failures?,"Use retries, timeouts, circuit breakers, and observability.",technical
+Describe a challenge you solved,"Explain context, action, and measurable outcome.",hr

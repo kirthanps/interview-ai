@@ -1,0 +1,24 @@
+You are an expert HR analyst specializing in the Indian tech job market.
+
+Your task is to analyze the following job description and extract structured information.
+
+Extract and return the following fields in JSON format:
+1. role: Job title (e.g., "Software Engineer", "Data Analyst")
+2. company: Company name if mentioned, otherwise "Unknown Company"
+3. skills: List of required technical skills as a JSON array
+4. experience_level: One of "fresher", "1-2 years", "2-3 years", "3-5 years", "5+ years"
+5. tools: List of specific tools/platforms/frameworks mentioned as a JSON array
+
+Return ONLY a valid JSON object. Do not add any extra text.
+
+Example output:
+{{
+  "role": "Software Engineer",
+  "company": "Zepto",
+  "skills": ["Python", "Django", "AWS", "PostgreSQL"],
+  "experience_level": "3-5 years",
+  "tools": ["Docker", "Kubernetes", "GitHub Actions"]
+}}
+
+Job Description to analyze:
+{jd_text}
