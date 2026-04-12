@@ -97,8 +97,10 @@ def _to_interview_question(item: Any) -> InterviewQuestion:
         return InterviewQuestion(
             question=str(item.get("question", "")).strip(),
             type=str(item.get("type", "technical")).strip() or "technical",
-            hint=list(item.get("hint", [])) if isinstance(item.get("hint", []), list) else [],
-            difficulty=str(item.get("difficulty", "medium")).strip() or "medium",
+            hint=list(item.get("hint", [])) if isinstance(
+                item.get("hint", []), list) else [],
+            difficulty=str(item.get("difficulty", "medium")
+                           ).strip() or "medium",
         )
 
     raise TypeError("Unsupported question payload type")
@@ -292,7 +294,8 @@ def skip_question(session: InterviewSession) -> Dict[str, Any]:
 
 def get_conversation_history(session: InterviewSession) -> str:
     """Build formatted conversation transcript from recorded Q&A pairs."""
-    history = [f"Interview for {session.role} at {session.company}", "=" * 50, ""]
+    history = [
+        f"Interview for {session.role} at {session.company}", "=" * 50, ""]
 
     for qa in session.qa_pairs:
         history.append(f"Q: {qa.question}")

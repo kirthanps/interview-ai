@@ -24,16 +24,14 @@ from utils.constants import (
     INTERVIEW_QA_COLLECTION,
     MODEL_CACHE_DIR,
 )
+from utils.embedding_provider import get_embedding_model
 
 logger = logging.getLogger(__name__)
 
 
 def _load_embedding_model() -> Any:
     """Load sentence-transformers model with project-local cache."""
-    from sentence_transformers import SentenceTransformer
-
-    os.makedirs(MODEL_CACHE_DIR, exist_ok=True)
-    return SentenceTransformer(EMBEDDING_MODEL, cache_folder=MODEL_CACHE_DIR)
+    return get_embedding_model()
 
 
 def _encode_texts(texts: List[str], show_progress_bar: bool = False) -> np.ndarray:

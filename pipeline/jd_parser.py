@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import logging
 import os
-from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -14,11 +13,10 @@ from langchain_core.prompts import PromptTemplate
 from langchain_groq import ChatGroq
 
 from utils.constants import (
-    EMBEDDING_MODEL,
     INDIAN_JD_COLLECTION,
     INTERVIEW_QA_COLLECTION,
-    MODEL_CACHE_DIR,
 )
+from utils.embedding_provider import embed_query_text
 
 logger = logging.getLogger(__name__)
 
@@ -98,22 +96,6 @@ def _normalize_string_list(value: Any) -> List[str]:
     if isinstance(value, list):
         return [str(item).strip() for item in value if str(item).strip()]
     return [str(value).strip()] if str(value).strip() else []
-
-
-@lru_cache(maxsize=1)
-def _load_sentence_transformer() -> Any:
-    """Load shared sentence-transformer model with project-local cache."""
-    from sentence_transformers import SentenceTransformer
-
-    os.makedirs(MODEL_CACHE_DIR, exist_ok=True)
-    return SentenceTransformer(EMBEDDING_MODEL, cache_folder=MODEL_CACHE_DIR)
-
-
-def _embed_query_text(query_text: str) -> List[float]:
-    """Embed one query string for Chroma query_embeddings calls."""
-    model = _load_sentence_transformer()
-    vector = model.encode([query_text], show_progress_bar=False)[0]
-    return vector.tolist() if hasattr(vector, "tolist") else list(vector)
 
 
 def _build_groq_llm(temperature: float) -> ChatGroq:
@@ -279,7 +261,7 @@ def match_to_company_profile(
     try:
         collection = chroma_client.get_collection(name=INDIAN_JD_COLLECTION)
         query_text = f"{role} at {company} requires {', '.join(skills)}"
-        query_embedding = _embed_query_text(query_text)
+        query_embedding = embed_query_text(query_text)
         results = collection.query(
             query_embeddings=[query_embedding], n_results=1)
 
@@ -341,7 +323,7 @@ def retrieve_few_shot_examples(
 
     try:
         collection = chroma_client.get_collection(name=INTERVIEW_QA_COLLECTION)
-        query_embedding = _embed_query_text(query)
+        query_embedding = embed_query_text(query)
         results = collection.query(
             query_embeddings=[query_embedding], n_results=k)
 

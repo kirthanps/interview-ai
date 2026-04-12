@@ -1,12 +1,7 @@
-"""Module 2 integration smoke test.
-
-This script validates the end-to-end Module 2 path:
-1) parse_jd_with_llm
-2) match_to_company_profile
-3) generate_questions
+"""Module 2 integration smoke script.
 
 Run from project root:
-    python -m tests.smoke_test_module2
+    python -m tests.smoke.module2_smoke
 """
 
 from __future__ import annotations
@@ -22,7 +17,6 @@ from pipeline.resume_processor import initialize_chroma_db, initialize_datasets_
 
 
 def _write_seed_qa_csv(csv_path: Path) -> None:
-    """Write a minimal valid interview QA CSV with correct quoting."""
     rows = [
         ["question", "answer", "category"],
         [
@@ -48,7 +42,6 @@ def _write_seed_qa_csv(csv_path: Path) -> None:
 
 
 def _is_valid_qa_csv(csv_path: Path) -> bool:
-    """Check whether CSV has expected columns and row widths."""
     try:
         with csv_path.open("r", encoding="utf-8", newline="") as file:
             reader = list(csv.reader(file))
@@ -70,10 +63,6 @@ def _is_valid_qa_csv(csv_path: Path) -> bool:
 
 
 def _ensure_minimal_datasets() -> None:
-    """Create tiny seed datasets when project data files are absent.
-
-    This keeps the smoke test runnable even before full dataset procurement.
-    """
     data_dir = Path("data")
     data_dir.mkdir(parents=True, exist_ok=True)
 
@@ -105,10 +94,7 @@ def _ensure_minimal_datasets() -> None:
 
 def main() -> None:
     client = initialize_chroma_db()
-
     _ensure_minimal_datasets()
-
-    # Safe to call repeatedly: Module 1 loader skips if collections already exist.
     initialize_datasets_in_chromadb(client)
 
     jd_text = (
