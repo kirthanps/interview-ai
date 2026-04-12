@@ -15,3 +15,6 @@ models/
 
 # ai related files
 ai_files/
+
+# chroma db
+chroma_store/
