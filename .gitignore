@@ -1,0 +1,17 @@
+# secrets
+.env
+
+# VSCode workspace settings
+interview-ai (genai).code-workspace
+
+# Python virtual environment
+venv/
+
+# Python cache files
+__pycache__/
+
+# model files
+models/
+
+# ai related files
+ai_files/
