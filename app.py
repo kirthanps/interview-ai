@@ -65,6 +65,7 @@ def initialize_session_state() -> None:
         "resume_insights": None,
         "questions": None,
         "interview_session": None,
+        "qa_pairs": [],
         "scores": None,
         "pdf_path": None,
         "candidate_name": "",

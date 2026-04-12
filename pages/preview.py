@@ -1,4 +1,4 @@
-"""Preview page: confirm parsed insights before interview."""
+"""Preview page: show understanding of resume/JD before interview."""
 
 from __future__ import annotations
 
@@ -29,12 +29,22 @@ def _extract_resume_insights(resume_text: str) -> dict:
     ]
     found_skills = [skill for skill in known_skills if skill in lower_text]
 
-    years = re.findall(r"(\d+)\+?\s+years", lower_text)
-    experience_level = f"{max(map(int, years))}+ years" if years else "Not explicitly stated"
+    years = re.findall(r"\b(\d+)\+?\s+years?\b", lower_text)
+    experience_level = f"{max(map(int, years))}+ years" if years else "N/A"
 
-    education_keywords = ["btech", "b.e", "mtech", "bsc", "msc", "mba"]
-    education = next(
-        (word.upper() for word in education_keywords if word in lower_text), "Not detected")
+    education_patterns = [
+        (r"\bb\.?tech\b|\bbachelor of technology\b", "BTECH"),
+        (r"\bb\.?e\b|\bbachelor of engineering\b", "BE"),
+        (r"\bm\.?tech\b|\bmaster of technology\b", "MTECH"),
+        (r"\bmba\b|\bmaster of business administration\b", "MBA"),
+        (r"\bb\.?sc\b|\bbachelor of science\b", "BSC"),
+        (r"\bm\.?sc\b|\bmaster of science\b", "MSC"),
+    ]
+    education = "N/A"
+    for pattern, label in education_patterns:
+        if re.search(pattern, lower_text):
+            education = label
+            break
 
     lines = [line.strip() for line in text.splitlines() if line.strip()]
     project_lines = [line for line in lines if any(token in line.lower(
@@ -58,55 +68,100 @@ def _question_type_distribution(questions) -> dict:
     return dict(counts)
 
 
-def show_preview() -> None:
-    st.title("Preview Interview Plan")
+def show_preview():
+    """Preview page - show understanding of resume/JD before interview."""
+
+    st.title("Profile Preview")
+    st.caption("Review the generated plan before starting the interview")
 
     if not st.session_state.get("questions"):
-        st.error("No generated questions found. Complete setup first.")
+        st.error("No questions generated. Please go back to Setup.")
         return
 
-    parsed_jd = st.session_state.get("parsed_jd") or {}
-    company_profile = st.session_state.get("company_profile") or {}
+    # Resume insights
+    st.markdown("### Your Resume")
 
-    resume_insights = _extract_resume_insights(
-        st.session_state.get("resume_text", ""))
+    resume_insights = _extract_resume_insights(st.session_state["resume_text"])
     st.session_state["resume_insights"] = resume_insights
 
-    c1, c2 = st.columns(2)
-    with c1:
-        st.subheader("Resume Insights")
-        st.write(
-            f"Experience: {resume_insights.get('experience_level', 'Unknown')}")
-        st.write(f"Education: {resume_insights.get('education', 'Unknown')}")
-        st.write("Skills:")
-        for skill in resume_insights.get("skills", [])[:10]:
-            st.caption(f"- {skill}")
+    col1, col2 = st.columns(2)
 
-    with c2:
-        st.subheader("JD Insights")
-        st.write(f"Role: {parsed_jd.get('role', 'Unknown')}")
-        st.write(
-            f"Company: {company_profile.get('company', parsed_jd.get('company', 'Unknown'))}")
-        st.write(
-            f"Experience Required: {parsed_jd.get('experience_level', 'Unknown')}")
-        st.write("Required skills:")
-        for skill in parsed_jd.get("skills", [])[:10]:
-            st.caption(f"- {skill}")
+    with col1:
+        st.markdown("**Experience Level**")
+        st.write(resume_insights.get("experience_level", "Unknown"))
 
+        st.markdown("**Skills Found**")
+        skills = resume_insights.get("skills", [])
+        if skills:
+            for skill in skills[:10]:
+                st.caption(f"- {skill}")
+        else:
+            st.caption("No specific skills detected")
+
+    with col2:
+        st.markdown("**Education**")
+        st.write(resume_insights.get("education", "Unknown"))
+
+        st.markdown("**Key Projects**")
+        projects = resume_insights.get("projects", [])
+        if projects:
+            for proj in projects[:3]:
+                st.caption(f"- {proj}")
+
+    # JD insights
     st.divider()
-    dist = _question_type_distribution(st.session_state.get("questions"))
-    st.info("Question Distribution: " +
-            " | ".join([f"{k}: {v}" for k, v in dist.items()]))
+    st.markdown("### Job Role")
 
-    st.subheader("Company Hiring Notes")
-    st.write(company_profile.get("hiring_notes", "Standard interview process."))
+    parsed = st.session_state["parsed_jd"]
+    col1, col2 = st.columns(2)
 
-    btn_col1, btn_col2 = st.columns(2)
-    with btn_col1:
-        if st.button("Start Interview", use_container_width=True):
+    with col1:
+        st.write(f"**Role:** {parsed.get('role', 'Unknown')}")
+        st.write(f"**Company:** {parsed.get('company', 'Unknown')}")
+
+    with col2:
+        st.write(
+            f"**Experience Required:** {parsed.get('experience_level', 'Unknown')}")
+        st.write(
+            f"**Company Focus:** {st.session_state['company_profile'].get('hiring_notes', '')[:100]}...")
+
+    st.markdown("**Required Skills**")
+    skills = parsed.get("skills", [])
+    if skills:
+        for skill in skills[:10]:
+            st.caption(f"- {skill}")
+
+    # Gap analysis
+    st.divider()
+    resume_skills = set(resume_insights.get("skills", []))
+    required_skills = set(parsed.get("skills", []))
+    gaps = required_skills - resume_skills
+
+    if gaps:
+        st.warning(f"⚠️ **Skill Gaps Detected**: {', '.join(list(gaps)[:5])}...\n\n"
+                   f"Be prepared to discuss your approach to learning these skills!")
+    else:
+        st.success("✅ Your skills align well with the role requirements!")
+
+    # Question distribution
+    st.divider()
+    st.markdown("### Interview Plan")
+
+    type_dist = _question_type_distribution(st.session_state["questions"])
+
+    dist_str = " | ".join(
+        [f"{count} {qtype.title()}" for qtype, count in type_dist.items()])
+    st.info(f"Distribution: {dist_str}")
+
+    # CTA
+    st.divider()
+    col1, col2, col3 = st.columns([1, 2, 1])
+
+    with col2:
+        if st.button("Start Interview", use_container_width=True, key="cta_start_interview"):
             st.session_state["page"] = "interview"
             st.rerun()
-    with btn_col2:
-        if st.button("Back to Setup", use_container_width=True):
-            st.session_state["page"] = "setup"
-            st.rerun()
+
+    if st.button("Go Back", key="go_back_setup"):
+        st.session_state["page"] = "setup"
+        st.rerun()

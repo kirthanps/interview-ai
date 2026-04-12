@@ -99,6 +99,16 @@ def _validate_preferences(preferences: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def _normalize_question_type_for_focus(q_type: str, focus_area: str) -> str:
+    if focus_area == "technical":
+        return "technical"
+    if focus_area == "hr":
+        return "hr"
+    if focus_area == "system_design":
+        return "system_design"
+    return q_type
+
+
 def generate_questions(
     parsed_jd: Dict[str, Any],
     company_profile: Dict[str, Any],
@@ -217,11 +227,19 @@ def generate_questions(
             if q_type not in ALLOWED_TYPES:
                 q_type = "technical"
 
+            q_type = _normalize_question_type_for_focus(
+                q_type=q_type,
+                focus_area=validated_preferences["focus_area"],
+            )
+
             difficulty = str(
                 item.get("difficulty", validated_preferences["difficulty"]))
             difficulty = difficulty.strip().lower()
             if difficulty not in ALLOWED_DIFFICULTY:
                 difficulty = validated_preferences["difficulty"]
+
+            # Honor user-selected target difficulty so preview and interview match setup.
+            difficulty = validated_preferences["difficulty"]
 
             hints = _normalize_hint_list(item.get("hint", []))
             if not hints:
@@ -244,6 +262,20 @@ def generate_questions(
         if len(questions) != expected:
             logger.warning("Expected %s questions, received %s",
                            expected, len(questions))
+
+            if len(questions) > expected:
+                questions = questions[:expected]
+            else:
+                while len(questions) < expected and questions:
+                    template = questions[len(questions) % len(questions)]
+                    questions.append(
+                        Question(
+                            question=f"{template.question} (follow-up)",
+                            type=template.type,
+                            hint=list(template.hint),
+                            difficulty=template.difficulty,
+                        )
+                    )
 
         return questions
 

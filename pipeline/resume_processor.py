@@ -5,6 +5,8 @@ from __future__ import annotations
 import logging
 import os
 import re
+import hashlib
+import json
 from pathlib import Path
 from typing import Any, List, Optional, Tuple
 
@@ -27,6 +29,7 @@ from utils.constants import (
 from utils.embedding_provider import get_embedding_model
 
 logger = logging.getLogger(__name__)
+INGESTION_STATE_FILE = Path(CHROMA_STORE_DIR) / "dataset_ingestion_state.json"
 
 
 def _load_embedding_model() -> Any:
@@ -383,27 +386,80 @@ def initialize_datasets_in_chromadb(client: chromadb.ClientAPI) -> None:
 
     Existing non-empty collections are left unchanged to avoid duplicate ingestion.
     """
-    kaggle_docs = preprocess_kaggle_dataset("data/interview_qa.csv")
-    _store_documents_collection(client, INTERVIEW_QA_COLLECTION, kaggle_docs)
+    kaggle_path = "data/interview_qa.csv"
+    kaggle_docs = preprocess_kaggle_dataset(kaggle_path)
+    _store_documents_collection(
+        client,
+        INTERVIEW_QA_COLLECTION,
+        kaggle_docs,
+        source_key=INTERVIEW_QA_COLLECTION,
+        source_signature=_compute_file_signature(kaggle_path),
+    )
 
-    jd_docs = preprocess_indian_jd_dataset("data/indian_jd_dataset.json")
-    _store_documents_collection(client, INDIAN_JD_COLLECTION, jd_docs)
+    jd_path = "data/indian_jd_dataset.json"
+    jd_docs = preprocess_indian_jd_dataset(jd_path)
+    _store_documents_collection(
+        client,
+        INDIAN_JD_COLLECTION,
+        jd_docs,
+        source_key=INDIAN_JD_COLLECTION,
+        source_signature=_compute_file_signature(jd_path),
+    )
+
+
+def _compute_file_signature(file_path: str) -> str:
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Dataset file not found: {file_path}")
+
+    digest = hashlib.sha256()
+    digest.update(path.read_bytes())
+    digest.update(str(path.stat().st_mtime_ns).encode("utf-8"))
+    return digest.hexdigest()
+
+
+def _load_ingestion_state() -> dict:
+    if not INGESTION_STATE_FILE.exists():
+        return {}
+    try:
+        return json.loads(INGESTION_STATE_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _save_ingestion_state(state: dict) -> None:
+    INGESTION_STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    INGESTION_STATE_FILE.write_text(
+        json.dumps(state, indent=2), encoding="utf-8")
 
 
 def _store_documents_collection(
     client: chromadb.ClientAPI,
     collection_name: str,
     docs: List[Document],
+    source_key: str,
+    source_signature: str,
 ) -> None:
     """Persist a list of Documents into a collection with generated embeddings."""
     name = _sanitize_collection_name(collection_name)
     collection = client.get_or_create_collection(
         name=name, metadata={"hnsw:space": "cosine"})
 
-    if collection.count() > 0:
+    state = _load_ingestion_state()
+    previous_signature = state.get(source_key)
+    has_data = collection.count() > 0
+
+    if has_data and previous_signature == source_signature:
         logger.info(
-            "Collection %s already initialized; skipping ingestion", name)
+            "Collection %s already up to date; skipping ingestion", name)
         return
+
+    if has_data and previous_signature != source_signature:
+        existing = collection.get(include=[])
+        existing_ids = existing.get("ids", [])
+        if existing_ids:
+            collection.delete(ids=existing_ids)
+        logger.info("Dataset changed for %s. Re-indexing collection.", name)
 
     texts = [doc.page_content for doc in docs]
     embeddings = _encode_texts(texts, show_progress_bar=False)
@@ -418,4 +474,6 @@ def _store_documents_collection(
         metadatas=metadatas,
     )
 
+    state[source_key] = source_signature
+    _save_ingestion_state(state)
     logger.info("Initialized collection %s with %s documents", name, len(docs))

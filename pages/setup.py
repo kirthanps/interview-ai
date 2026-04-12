@@ -127,9 +127,15 @@ def show_setup() -> None:
                 )
 
                 st.session_state["questions"] = questions
-                st.session_state["page"] = "preview"
+
                 st.success("Questions generated successfully")
+                st.session_state["page"] = "preview"
                 st.rerun()
+
         except Exception as exc:
-            logger.exception("Setup flow failed")
-            st.error(f"Setup failed: {exc}")
+            logger.error(f"Error in question generation: {str(exc)}")
+            st.error(
+                f"❌ Error: {str(exc)}\n\nPlease check your JD and try again.")
+
+    st.caption(
+        "🔒 Your resume is processed securely and cleared after your session.")

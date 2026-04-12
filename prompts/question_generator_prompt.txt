@@ -20,6 +20,10 @@ Example Interview Patterns:
 Task:
 Generate exactly {num_questions} interview questions tailored to this specific candidate.
 
+User Preferences (MUST follow):
+- Focus Area: {focus_area}
+- Target Difficulty: {difficulty}
+
 Question Distribution Hint:
 {distribution}
 
@@ -28,6 +32,15 @@ Quality Requirements:
 2. Questions must move from easier to harder.
 3. Each question must have 2-3 specific hints.
 4. Ensure context-awareness for role and company expectations.
+5. Respect focus area strictly:
+	- focus_area=technical -> only "technical" questions
+	- focus_area=hr -> only "hr" questions
+	- focus_area=system_design -> only "system_design" questions
+	- focus_area=mixed -> allow all relevant types
+6. Respect target difficulty:
+	- If difficulty=easy: mostly easy with minimal medium
+	- If difficulty=medium: mostly medium with some easy/hard
+	- If difficulty=hard: mostly hard with optional medium
 
 Response Format:
 Return ONLY a valid JSON array of objects. Each object must have:
