@@ -26,8 +26,10 @@ class DummyResponse:
 class DummyLLM:
     def __init__(self, content: str) -> None:
         self._content = content
+        self.last_prompt = ""
 
-    def invoke(self, _: str) -> DummyResponse:
+    def invoke(self, prompt: str) -> DummyResponse:
+        self.last_prompt = prompt
         return DummyResponse(self._content)
 
 
@@ -63,9 +65,14 @@ def test_parse_jd_with_llm_success() -> None:
 {
   "role": "Senior Backend Engineer",
   "company": "Zepto",
+    "employment_type": "Full-time",
   "skills": ["Python", "Django", "AWS"],
   "experience_level": "3-5 years",
-  "tools": ["Docker", "Kubernetes"]
+    "tools": ["Docker", "Kubernetes"],
+    "responsibilities": ["Build APIs"],
+    "qualifications": ["B.Tech"],
+    "interview_focus": ["system design"],
+    "company_signals": ["fast-paced"]
 }
 ```
 """
@@ -77,6 +84,8 @@ def test_parse_jd_with_llm_success() -> None:
     assert parsed["company"] == "Zepto"
     assert "Python" in parsed["skills"]
     assert parsed["experience_level"] == "3-5 years"
+    assert parsed["employment_type"] == "Full-time"
+    assert parsed["interview_focus"]
 
 
 def test_parse_jd_with_llm_short_jd_raises() -> None:
@@ -130,6 +139,30 @@ def test_retrieve_few_shot_examples_parses_documents() -> None:
     assert examples[0]["answer"]
 
 
+def test_parse_jd_uses_retrieved_examples_in_prompt() -> None:
+    jd_examples = [
+        "Company: Zepto\\nRole: Backend Engineer\\nSkills: Python, Django",
+    ]
+    client = FakeChromaClient(
+        {"indian_jd_dataset": FakeCollection(jd_examples)})
+    llm = DummyLLM(
+        '{"role":"Backend Engineer","company":"Zepto","skills":["Python"],"experience_level":"3-5 years","tools":["Docker"]}'
+    )
+
+    parse_jd_with_llm(
+        jd_text=(
+            "Backend Engineer role at Zepto with Python and Django experience. "
+            "Should build APIs and scale backend systems for high traffic operations in Bengaluru."
+        ),
+        llm=llm,
+        chroma_client=client,
+        k_examples=1,
+    )
+
+    assert "Reference JD examples" in llm.last_prompt
+    assert "Company: Zepto" in llm.last_prompt
+
+
 def test_generate_questions_success() -> None:
     parsed_jd = {
         "role": "Backend Engineer",
@@ -150,20 +183,32 @@ def test_generate_questions_success() -> None:
 
     llm = DummyLLM(
         """
-[
-  {
-    "question": "In your fintech API project, how did you secure refresh tokens?",
-    "type": "technical",
-    "hint": ["token rotation", "revocation strategy"],
-    "difficulty": "medium"
-  },
-  {
-    "question": "Design a high-throughput order service for rapid delivery.",
-    "type": "system_design",
-    "hint": ["read/write paths", "scaling and caching"],
-    "difficulty": "hard"
-  }
-]
+{
+    "questions": [
+        {
+            "question": "In your fintech API project, how did you secure refresh tokens?",
+            "type": "technical",
+            "hints": ["token rotation", "revocation strategy"],
+            "difficulty": "medium",
+            "focus_area": "technical",
+            "rationale": "Tests security depth"
+        },
+        {
+            "question": "Design a high-throughput order service for rapid delivery.",
+            "type": "system_design",
+            "hints": ["read/write paths", "scaling and caching"],
+            "difficulty": "hard",
+            "focus_area": "system_design",
+            "rationale": "Tests architecture tradeoffs"
+        }
+    ],
+    "summary": {
+        "total_questions": 2,
+        "difficulty_distribution": {"easy": 0, "medium": 1, "hard": 1},
+        "type_distribution": {"technical": 1, "system_design": 1},
+        "focus_area": "mixed"
+    }
+}
 """
     )
 
@@ -180,6 +225,7 @@ def test_generate_questions_success() -> None:
         resume_context=resume_context,
         preferences=preferences,
         chroma_client=client,
+        resume_text="Backend engineer with API security experience",
         llm=llm,
     )
 
@@ -187,6 +233,7 @@ def test_generate_questions_success() -> None:
     assert all(isinstance(item, Question) for item in questions)
     assert questions[0].question
     assert questions[0].hint
+    assert questions[0].rationale
 
 
 def test_get_question_distribution_contains_target_count() -> None:

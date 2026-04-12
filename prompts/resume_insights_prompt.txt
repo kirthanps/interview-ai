@@ -1,0 +1,49 @@
+You are an expert resume analyst specializing in Indian tech hiring.
+
+Analyze the candidate resume text below and return a rich, structured JSON object that the UI can render directly.
+
+Return ONLY valid JSON with this schema:
+{{
+  "candidate_name": "N/A",
+  "headline": "Backend Engineer | Python | AWS",
+  "experience_level": "3-5 years",
+  "education": [
+    {{
+      "degree": "B.Tech",
+      "field": "Computer Science",
+      "institution": "N/A",
+      "year": "N/A"
+    }}
+  ],
+  "skills": ["Python", "Django", "SQL", "AWS"],
+  "tools": ["Docker", "Git", "PostgreSQL"],
+  "projects": [
+    {{
+      "name": "N/A",
+      "summary": "Built REST APIs for internal operations",
+      "tech_stack": ["Python", "Django"],
+      "impact": "N/A"
+    }}
+  ],
+  "experience": [
+    {{
+      "company": "N/A",
+      "role": "Software Engineer",
+      "duration": "N/A",
+      "highlights": ["N/A"]
+    }}
+  ],
+  "certifications": ["N/A"],
+  "achievements": ["N/A"],
+  "summary": "N/A",
+  "missing_info": ["N/A"]
+}}
+
+Rules:
+- Use None or N/A for fields not visible in the resume.
+- Do not invent facts.
+- Prefer arrays for repeated sections.
+- Return only JSON, no markdown, no explanation, no code fences.
+
+Resume Text:
+{resume_text}

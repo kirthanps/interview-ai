@@ -7,6 +7,8 @@ from collections import Counter
 
 import streamlit as st
 
+from pipeline.resume_processor import extract_resume_insights_with_llm
+
 
 def _extract_resume_insights(resume_text: str) -> dict:
     """Heuristic resume insight extraction for preview display."""
@@ -81,7 +83,15 @@ def show_preview():
     # Resume insights
     st.markdown("### Your Resume")
 
-    resume_insights = _extract_resume_insights(st.session_state["resume_text"])
+    resume_insights = st.session_state.get("resume_insights")
+    if not isinstance(resume_insights, dict) or not resume_insights:
+        try:
+            resume_insights = extract_resume_insights_with_llm(
+                st.session_state["resume_text"]
+            )
+        except Exception:
+            resume_insights = _extract_resume_insights(
+                st.session_state["resume_text"])
     st.session_state["resume_insights"] = resume_insights
 
     col1, col2 = st.columns(2)
@@ -92,6 +102,8 @@ def show_preview():
 
         st.markdown("**Skills Found**")
         skills = resume_insights.get("skills", [])
+        if isinstance(skills, list):
+            skills = [str(item).lower() for item in skills]
         if skills:
             for skill in skills[:10]:
                 st.caption(f"- {skill}")
@@ -100,13 +112,29 @@ def show_preview():
 
     with col2:
         st.markdown("**Education**")
-        st.write(resume_insights.get("education", "Unknown"))
+        education = resume_insights.get("education", "Unknown")
+        if isinstance(education, list):
+            if education and isinstance(education[0], dict):
+                first = education[0]
+                education = " ".join(
+                    [
+                        str(first.get("degree", "")).strip(),
+                        str(first.get("field", "")).strip(),
+                    ]
+                ).strip() or "Unknown"
+            elif education:
+                education = str(education[0])
+        st.write(education)
 
         st.markdown("**Key Projects**")
         projects = resume_insights.get("projects", [])
         if projects:
             for proj in projects[:3]:
-                st.caption(f"- {proj}")
+                if isinstance(proj, dict):
+                    st.caption(
+                        f"- {proj.get('summary', proj.get('name', 'N/A'))}")
+                else:
+                    st.caption(f"- {proj}")
 
     # JD insights
     st.divider()

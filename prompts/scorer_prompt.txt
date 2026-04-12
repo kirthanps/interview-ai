@@ -7,6 +7,15 @@ Company: {company}
 Here is the complete interview transcript:
 {transcript}
 
+Resume insights JSON:
+{resume_insights}
+
+JD insights JSON:
+{jd_insights}
+
+Generated questions JSON:
+{generated_questions}
+
 Evaluate the interview and return scores using this rubric.
 
 For EACH question-answer pair, score:
@@ -21,7 +30,8 @@ Also return:
 4. what_went_well: 2-4 specific positive observations tied to the candidate's actual answers
 5. areas_to_improve: 2-4 specific and actionable improvements tied to the candidate's actual answers
 6. role_readiness_percent (0-100): overall readiness for this role at this company
-7. recommended_resources: 2-5 concrete resources (courses, playlists, docs, or practice platforms)
+7. role_readiness_label: short classification of candidate readiness
+8. recommended_resources: 2-5 concrete resources (courses, playlists, docs, or practice platforms)
 
 Return ONLY valid JSON with this exact schema:
 {{
@@ -43,6 +53,7 @@ Return ONLY valid JSON with this exact schema:
     "Specific actionable point 1"
   ],
   "role_readiness_percent": 72,
+  "role_readiness_label": "Good Foundation",
   "recommended_resources": [
     "Resource suggestion 1"
   ]

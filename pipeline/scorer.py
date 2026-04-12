@@ -268,6 +268,7 @@ def build_interview_scores(
         )
 
     overall_score = float(scores_data["overall_score"])
+    readiness_label = str(scores_data.get("role_readiness_label", "")).strip()
     return InterviewScores(
         overall_score=overall_score,
         technical_depth_score=float(scores_data["technical_depth_score"]),
@@ -277,7 +278,8 @@ def build_interview_scores(
         areas_to_improve=[str(item).strip()
                           for item in scores_data["areas_to_improve"]],
         role_readiness_percent=float(scores_data["role_readiness_percent"]),
-        role_readiness_label=_derive_readiness_label(overall_score),
+        role_readiness_label=readiness_label or _derive_readiness_label(
+            overall_score),
         per_answer_scores=per_answer_scores,
         recommended_resources=[
             str(item).strip() for item in scores_data.get("recommended_resources", [])
@@ -300,6 +302,9 @@ def score_interview(
     qa_pairs: List[Dict[str, Any]],
     role: str,
     company: str,
+    resume_insights: Dict[str, Any] | None = None,
+    jd_insights: Dict[str, Any] | None = None,
+    generated_questions: List[Dict[str, Any]] | None = None,
     llm: Any | None = None,
     prompt_path: str = "prompts/scorer_prompt.txt",
 ) -> InterviewScores:
@@ -309,13 +314,27 @@ def score_interview(
 
     prompt_template = _load_prompt_template(prompt_path)
     prompt = PromptTemplate(
-        input_variables=["role", "company", "transcript"],
+        input_variables=[
+            "role",
+            "company",
+            "transcript",
+            "resume_insights",
+            "jd_insights",
+            "generated_questions",
+        ],
         template=prompt_template,
     )
 
     transcript = format_qa_transcript(qa_pairs)
     prompt_text = prompt.format(
-        role=role, company=company, transcript=transcript)
+        role=role,
+        company=company,
+        transcript=transcript,
+        resume_insights=json.dumps(resume_insights or {}, ensure_ascii=True),
+        jd_insights=json.dumps(jd_insights or {}, ensure_ascii=True),
+        generated_questions=json.dumps(
+            generated_questions or [], ensure_ascii=True),
+    )
 
     try:
         if llm is not None:

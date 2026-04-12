@@ -41,6 +41,14 @@ class DummyModel:
         return np.array(vectors, dtype=float)
 
 
+class DummyLLM:
+    def __init__(self, content: str) -> None:
+        self._content = content
+
+    def invoke(self, _: str) -> str:
+        return self._content
+
+
 def test_extract_text_from_pdf(isolated_cwd: Path) -> None:
     pdf_path = isolated_cwd / "sample_resume.pdf"
     expected = "Python Django AWS Experience"
@@ -89,6 +97,47 @@ def test_store_and_retrieve_resume_context(
     )
     assert 1 <= len(retrieved) <= 5
     assert all(isinstance(item, str) for item in retrieved)
+
+
+def test_store_jd_in_chroma(isolated_cwd: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(rp, "_load_embedding_model", lambda: DummyModel())
+
+    client = rp.initialize_chroma_db()
+    collection_name = rp.store_jd_in_chroma(
+        jd_text="Backend Engineer role requiring Python, Django, and AWS.",
+        session_id="test_session_123",
+        client=client,
+    )
+
+    assert collection_name.startswith("jd_")
+    collection = client.get_collection(collection_name)
+    assert collection.count() == 1
+
+
+def test_extract_resume_insights_with_llm_normalizes_payload() -> None:
+    llm = DummyLLM(
+        """
+        {
+            "candidate_name": "Alex",
+            "headline": "Backend Engineer",
+            "experience_level": "3-5 years",
+            "skills": ["Python", "Django"],
+            "education": [{"degree": "B.Tech", "field": "CSE"}],
+            "projects": [{"summary": "Built APIs"}],
+            "summary": "Strong backend profile"
+        }
+        """
+    )
+
+    insights = rp.extract_resume_insights_with_llm(
+        resume_text="Backend engineer with 3 years experience",
+        llm=llm,
+    )
+
+    assert insights["candidate_name"] == "Alex"
+    assert insights["headline"] == "Backend Engineer"
+    assert "Python" in insights["skills"]
+    assert isinstance(insights["missing_info"], list)
 
 
 def test_preprocess_and_initialize_datasets(

@@ -36,6 +36,8 @@ class Question:
     type: str
     hint: List[str]
     difficulty: str
+    focus_area: str = "mixed"
+    rationale: str = ""
     is_answered: bool = False
     answer_text: str = ""
     skip_flag: bool = False
@@ -115,6 +117,7 @@ def generate_questions(
     resume_context: List[str],
     preferences: Dict[str, Any],
     chroma_client: chromadb.ClientAPI,
+    resume_text: str = "",
     llm: Any | None = None,
 ) -> List[Question]:
     """Generate tailored interview questions using GROQ and RAG context."""
@@ -135,14 +138,27 @@ def generate_questions(
             "focus_area",
             "difficulty",
             "distribution",
+            "jd_json",
+            "resume_text",
         ],
         template=prompt_template,
     )
+
+    retrieval_query = " ".join(
+        [
+            parsed_jd.get("role", ""),
+            parsed_jd.get("company", ""),
+            ", ".join(parsed_jd.get("skills", [])),
+            str(parsed_jd.get("experience_level", "")),
+            resume_text[:300],
+        ]
+    ).strip()
 
     few_shot_examples = retrieve_few_shot_examples(
         skills=list(parsed_jd.get("skills", [])),
         chroma_client=chroma_client,
         k=3,
+        query_text=retrieval_query,
     )
 
     resume_context_str = "\n---\n".join(
@@ -171,6 +187,8 @@ def generate_questions(
             focus_area=validated_preferences["focus_area"],
             difficulty=validated_preferences["difficulty"],
             distribution=distribution,
+            jd_json=json.dumps(parsed_jd, ensure_ascii=True),
+            resume_text=resume_text or "N/A",
         )
 
         if llm is not None:
@@ -243,8 +261,14 @@ def generate_questions(
 
             hints = _normalize_hint_list(item.get("hint", []))
             if not hints:
+                hints = _normalize_hint_list(item.get("hints", []))
+            if not hints:
                 hints = [
                     "Use the candidate's stated experience to structure your answer."]
+
+            focus_area = str(
+                item.get("focus_area", validated_preferences["focus_area"])).strip().lower()
+            rationale = str(item.get("rationale", "")).strip()
 
             questions.append(
                 Question(
@@ -252,6 +276,8 @@ def generate_questions(
                     type=q_type,
                     hint=hints,
                     difficulty=difficulty,
+                    focus_area=focus_area,
+                    rationale=rationale,
                 )
             )
 

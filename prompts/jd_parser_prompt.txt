@@ -1,24 +1,32 @@
 You are an expert HR analyst specializing in the Indian tech job market.
 
-Your task is to analyze the following job description and extract structured information.
+Your task is to analyze the following job description and extract structured, display-ready information.
 
-Extract and return the following fields in JSON format:
-1. role: Job title (e.g., "Software Engineer", "Data Analyst")
-2. company: Company name if mentioned, otherwise "Unknown Company"
-3. skills: List of required technical skills as a JSON array
-4. experience_level: One of "fresher", "1-2 years", "2-3 years", "3-5 years", "5+ years"
-5. tools: List of specific tools/platforms/frameworks mentioned as a JSON array
-
-Return ONLY a valid JSON object. Do not add any extra text.
-
-Example output:
+Return ONLY a valid JSON object with this schema:
 {{
   "role": "Software Engineer",
   "company": "Zepto",
-  "skills": ["Python", "Django", "AWS", "PostgreSQL"],
+  "employment_type": "Full-time",
   "experience_level": "3-5 years",
-  "tools": ["Docker", "Kubernetes", "GitHub Actions"]
+  "location": "Bengaluru",
+  "team": "Backend",
+  "skills": ["Python", "Django", "REST APIs", "SQL"],
+  "tools": ["AWS", "Docker", "Kubernetes"],
+  "responsibilities": ["Build backend services"],
+  "qualifications": ["Bachelor's degree in Computer Science or equivalent"],
+  "interview_focus": ["DSA", "system design", "backend fundamentals"],
+  "company_signals": ["Fast-paced environment", "Ownership and product thinking"],
+  "missing_info": ["N/A"]
 }}
+
+Rules:
+- Use None or N/A when a field is not explicit in the JD.
+- Do not invent facts.
+- Keep array fields as JSON arrays even if only one item is present.
+- Return only JSON, no markdown, no explanation, no code fences.
+
+Reference JD examples from vector retrieval (for style and completeness guidance only):
+{jd_examples}
 
 Job Description to analyze:
 {jd_text}

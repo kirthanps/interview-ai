@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 import PyPDF2
 from langchain_core.documents import Document
+from langchain_core.prompts import PromptTemplate
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from utils.constants import (
@@ -27,9 +28,71 @@ from utils.constants import (
     MODEL_CACHE_DIR,
 )
 from utils.embedding_provider import get_embedding_model
+from utils.groq_helpers import (
+    build_groq_llm,
+    get_groq_model_candidates,
+    is_model_decommission_error,
+)
 
 logger = logging.getLogger(__name__)
 INGESTION_STATE_FILE = Path(CHROMA_STORE_DIR) / "dataset_ingestion_state.json"
+GROQ_RESUME_INSIGHTS_TEMPERATURE = 0.3
+
+
+def _load_prompt_template(prompt_path: str) -> str:
+    path = Path(prompt_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Prompt file not found: {prompt_path}")
+    return path.read_text(encoding="utf-8")
+
+
+def _extract_llm_text(response: Any) -> str:
+    if isinstance(response, str):
+        return response
+    content = getattr(response, "content", response)
+    if isinstance(content, list):
+        parts = [getattr(part, "text", str(part)) for part in content]
+        return " ".join(parts).strip()
+    return str(content).strip()
+
+
+def _strip_json_code_fence(response_text: str) -> str:
+    cleaned = response_text.strip()
+    if cleaned.startswith("```"):
+        lines = cleaned.splitlines()
+        if lines and lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        cleaned = "\n".join(lines).strip()
+    if cleaned.lower().startswith("json"):
+        cleaned = cleaned[4:].strip()
+    return cleaned
+
+
+def _ensure_list(value: Any) -> List[Any]:
+    if isinstance(value, list):
+        return value
+    if value is None:
+        return []
+    return [value]
+
+
+def _normalize_resume_insights_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "candidate_name": str(payload.get("candidate_name", "N/A")).strip() or "N/A",
+        "headline": str(payload.get("headline", "N/A")).strip() or "N/A",
+        "experience_level": str(payload.get("experience_level", "N/A")).strip() or "N/A",
+        "education": _ensure_list(payload.get("education", [])) or ["N/A"],
+        "skills": [str(item).strip() for item in _ensure_list(payload.get("skills", [])) if str(item).strip()],
+        "tools": [str(item).strip() for item in _ensure_list(payload.get("tools", [])) if str(item).strip()],
+        "projects": _ensure_list(payload.get("projects", [])) or ["N/A"],
+        "experience": _ensure_list(payload.get("experience", [])) or ["N/A"],
+        "certifications": [str(item).strip() for item in _ensure_list(payload.get("certifications", [])) if str(item).strip()] or ["N/A"],
+        "achievements": [str(item).strip() for item in _ensure_list(payload.get("achievements", [])) if str(item).strip()] or ["N/A"],
+        "summary": str(payload.get("summary", "N/A")).strip() or "N/A",
+        "missing_info": [str(item).strip() for item in _ensure_list(payload.get("missing_info", [])) if str(item).strip()] or ["N/A"],
+    }
 
 
 def _load_embedding_model() -> Any:
@@ -186,6 +249,12 @@ def _session_collection_name(session_id: str) -> str:
     return _sanitize_collection_name(f"resume_{session_id}")
 
 
+def _jd_session_collection_name(session_id: str) -> str:
+    if not session_id or not session_id.strip():
+        raise ValueError("session_id cannot be empty")
+    return _sanitize_collection_name(f"jd_{session_id}")
+
+
 def store_resume_in_chroma(
     chunks: List[str],
     embeddings: np.ndarray,
@@ -291,6 +360,88 @@ def retrieve_resume_context(
                         if isinstance(chunk, str)]
     logger.info("Retrieved %s chunks for query", len(retrieved_chunks))
     return retrieved_chunks
+
+
+def store_jd_in_chroma(
+    jd_text: str,
+    session_id: str,
+    client: chromadb.ClientAPI,
+) -> str:
+    """Store user JD text in a session-specific Chroma collection."""
+    if not jd_text or not jd_text.strip():
+        raise ValueError("jd_text cannot be empty")
+
+    collection_name = _jd_session_collection_name(session_id)
+    collection = client.get_or_create_collection(
+        name=collection_name,
+        metadata={"hnsw:space": "cosine"},
+    )
+
+    if collection.count() > 0:
+        existing = collection.get(include=[])
+        existing_ids = existing.get("ids", [])
+        if existing_ids:
+            collection.delete(ids=existing_ids)
+
+    embedding = _encode_texts([jd_text], show_progress_bar=False)
+    collection.add(
+        ids=["jd_0"],
+        embeddings=embedding.tolist(),
+        documents=[jd_text],
+        metadatas=[{"source": "jd", "session_id": session_id}],
+    )
+    return collection_name
+
+
+def extract_resume_insights_with_llm(
+    resume_text: str,
+    llm: Any | None = None,
+    prompt_path: str = "prompts/resume_insights_prompt.txt",
+) -> Dict[str, Any]:
+    """Extract rich structured resume insights using GROQ."""
+    if not resume_text or not resume_text.strip():
+        raise ValueError("resume_text cannot be empty")
+
+    prompt_template = _load_prompt_template(prompt_path)
+    prompt = PromptTemplate(
+        input_variables=["resume_text"],
+        template=prompt_template,
+    )
+    prompt_text = prompt.format(resume_text=resume_text)
+
+    try:
+        if llm is not None:
+            response = llm.invoke(prompt_text)
+        else:
+            response = None
+            last_error: Exception | None = None
+            for model_name in get_groq_model_candidates():
+                try:
+                    model = build_groq_llm(
+                        model_name=model_name,
+                        temperature=GROQ_RESUME_INSIGHTS_TEMPERATURE,
+                    )
+                    response = model.invoke(prompt_text)
+                    break
+                except Exception as exc:
+                    last_error = exc
+                    if is_model_decommission_error(exc):
+                        continue
+                    raise
+
+            if response is None:
+                if last_error is not None:
+                    raise last_error
+                raise ValueError("No GROQ model candidates available")
+
+        payload = json.loads(_strip_json_code_fence(
+            _extract_llm_text(response)))
+        if not isinstance(payload, dict):
+            raise ValueError("Resume insights response must be a JSON object")
+        return _normalize_resume_insights_payload(payload)
+
+    except json.JSONDecodeError as exc:
+        raise ValueError("Failed to parse resume insights JSON") from exc
 
 
 def preprocess_kaggle_dataset(csv_path: str) -> List[Document]:

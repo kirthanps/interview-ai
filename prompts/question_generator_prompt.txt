@@ -11,6 +11,12 @@ Role Details:
 Candidate Resume Excerpts:
 {resume_context}
 
+Candidate Resume Full Text:
+{resume_text}
+
+Parsed JD JSON:
+{jd_json}
+
 Company Hiring Style and Focus:
 {company_notes}
 
@@ -33,20 +39,48 @@ Quality Requirements:
 3. Each question must have 2-3 specific hints.
 4. Ensure context-awareness for role and company expectations.
 5. Respect focus area strictly:
-	- focus_area=technical -> only "technical" questions
-	- focus_area=hr -> only "hr" questions
-	- focus_area=system_design -> only "system_design" questions
-	- focus_area=mixed -> allow all relevant types
+	focus_area=technical -> only "technical" questions
+	focus_area=hr -> only "hr" questions
+	focus_area=system_design -> only "system_design" questions
+	focus_area=mixed -> allow all relevant types
 6. Respect target difficulty:
 	- If difficulty=easy: mostly easy with minimal medium
 	- If difficulty=medium: mostly medium with some easy/hard
 	- If difficulty=hard: mostly hard with optional medium
+7. Include rich metadata so the UI can explain why each question was chosen.
 
 Response Format:
-Return ONLY a valid JSON array of objects. Each object must have:
-- "question": question text
-- "type": one of "technical", "hr", "system_design", "situational"
-- "hint": array of 2-3 specific hints
-- "difficulty": one of "easy", "medium", "hard"
+Return ONLY a valid JSON object with this schema:
+{{
+	"questions": [
+		{{
+			"question": "Tell me about a backend system you built and the tradeoffs you made.",
+			"type": "technical",
+			"difficulty": "medium",
+			"focus_area": "technical",
+			"hints": [
+				"Reference one project from the resume",
+				"Mention APIs, database design, or deployment",
+				"Explain one tradeoff clearly"
+			],
+			"rationale": "Tests project depth and ownership"
+		}}
+	],
+	"summary": {{
+		"total_questions": {num_questions},
+		"difficulty_distribution": {{
+			"easy": 0,
+			"medium": 0,
+			"hard": 0
+		}},
+		"type_distribution": {{
+			"technical": 0,
+			"hr": 0,
+			"system_design": 0,
+			"situational": 0
+		}},
+		"focus_area": "{focus_area}"
+	}}
+}}
 
-Do not add any text outside JSON.
+Do not add any text outside JSON. Use the same number of questions requested. Use the selected difficulty and focus area as strict constraints.

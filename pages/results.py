@@ -33,6 +33,17 @@ def _compute_scores_if_needed() -> None:
                       or {}).get("role", "Unknown Role"),
                 company=(st.session_state.get("company_profile")
                          or {}).get("company", "Unknown Company"),
+                resume_insights=st.session_state.get("resume_insights") or {},
+                jd_insights=st.session_state.get("parsed_jd") or {},
+                generated_questions=[
+                    {
+                        "question": getattr(q, "question", ""),
+                        "type": getattr(q, "type", "technical"),
+                        "difficulty": getattr(q, "difficulty", "medium"),
+                        "hint": getattr(q, "hint", []),
+                    }
+                    for q in (st.session_state.get("questions") or [])
+                ],
             )
         st.session_state["scores"] = scores
     except Exception as exc:

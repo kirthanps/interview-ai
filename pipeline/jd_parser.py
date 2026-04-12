@@ -72,7 +72,53 @@ def _normalize_string_list(value: Any) -> List[str]:
     return [str(value).strip()] if str(value).strip() else []
 
 
-def parse_jd_with_llm(jd_text: str, llm: Any | None = None) -> Dict[str, Any]:
+def _retrieve_jd_examples(
+    jd_text: str,
+    chroma_client: chromadb.ClientAPI,
+    k: int,
+) -> List[str]:
+    if k <= 0:
+        return []
+
+    try:
+        collection = chroma_client.get_collection(name=INDIAN_JD_COLLECTION)
+        query_embedding = embed_query_text(jd_text)
+        results = collection.query(
+            query_embeddings=[query_embedding], n_results=k)
+        documents = (results or {}).get("documents") or []
+        if not documents or not documents[0]:
+            return []
+        return [str(item) for item in documents[0] if str(item).strip()]
+    except Exception:
+        logger.exception("Failed retrieving JD few-shot examples")
+        return []
+
+
+def _normalize_jd_payload(parsed: Dict[str, Any]) -> Dict[str, Any]:
+    normalized: Dict[str, Any] = {
+        "role": str(parsed.get("role", "Unknown Role")).strip() or "Unknown Role",
+        "company": str(parsed.get("company", "Unknown Company")).strip() or "Unknown Company",
+        "employment_type": str(parsed.get("employment_type", "N/A")).strip() or "N/A",
+        "experience_level": str(parsed.get("experience_level", "Unknown")).strip() or "Unknown",
+        "location": str(parsed.get("location", "N/A")).strip() or "N/A",
+        "team": str(parsed.get("team", "N/A")).strip() or "N/A",
+        "skills": _normalize_string_list(parsed.get("skills", [])),
+        "tools": _normalize_string_list(parsed.get("tools", [])),
+        "responsibilities": _normalize_string_list(parsed.get("responsibilities", [])),
+        "qualifications": _normalize_string_list(parsed.get("qualifications", [])),
+        "interview_focus": _normalize_string_list(parsed.get("interview_focus", [])),
+        "company_signals": _normalize_string_list(parsed.get("company_signals", [])),
+        "missing_info": _normalize_string_list(parsed.get("missing_info", ["N/A"])) or ["N/A"],
+    }
+    return normalized
+
+
+def parse_jd_with_llm(
+    jd_text: str,
+    llm: Any | None = None,
+    chroma_client: chromadb.ClientAPI | None = None,
+    k_examples: int = 3,
+) -> Dict[str, Any]:
     """Parse job-description text into structured fields using GROQ.
 
     Args:
@@ -90,10 +136,20 @@ def parse_jd_with_llm(jd_text: str, llm: Any | None = None) -> Dict[str, Any]:
 
     prompt_template = _load_prompt_template("prompts/jd_parser_prompt.txt")
     prompt = PromptTemplate(
-        input_variables=["jd_text"], template=prompt_template)
+        input_variables=["jd_text", "jd_examples"], template=prompt_template)
 
     try:
-        prompt_text = prompt.format(jd_text=jd_text)
+        jd_examples = []
+        if chroma_client is not None:
+            jd_examples = _retrieve_jd_examples(
+                jd_text=jd_text,
+                chroma_client=chroma_client,
+                k=k_examples,
+            )
+        examples_block = "\n---\n".join(jd_examples) if jd_examples else "N/A"
+
+        prompt_text = prompt.format(
+            jd_text=jd_text, jd_examples=examples_block)
 
         if llm is not None:
             logger.info("Calling injected LLM for parse_jd_with_llm")
@@ -132,15 +188,7 @@ def parse_jd_with_llm(jd_text: str, llm: Any | None = None) -> Dict[str, Any]:
         if not isinstance(parsed, dict):
             raise ValueError("Parsed JD payload must be a JSON object")
 
-        normalized: Dict[str, Any] = {
-            "role": str(parsed.get("role", "Unknown Role")).strip() or "Unknown Role",
-            "company": str(parsed.get("company", "Unknown Company")).strip()
-            or "Unknown Company",
-            "skills": _normalize_string_list(parsed.get("skills", [])),
-            "experience_level": str(parsed.get("experience_level", "Unknown")).strip()
-            or "Unknown",
-            "tools": _normalize_string_list(parsed.get("tools", [])),
-        }
+        normalized = _normalize_jd_payload(parsed)
 
         logger.info(
             "Parsed JD result role=%s company=%s",
@@ -226,12 +274,15 @@ def retrieve_few_shot_examples(
     skills: List[str],
     chroma_client: chromadb.ClientAPI,
     k: int = 3,
+    query_text: str | None = None,
 ) -> List[Dict[str, str]]:
     """Retrieve relevant Q&A examples from the shared interview dataset."""
     if k <= 0:
         return []
 
-    query = " ".join(_normalize_string_list(skills)).strip()
+    query = (query_text or "").strip()
+    if not query:
+        query = " ".join(_normalize_string_list(skills)).strip()
     if not query:
         query = "general interview questions"
 

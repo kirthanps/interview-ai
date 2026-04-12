@@ -12,10 +12,12 @@ from pipeline.jd_parser import match_to_company_profile, parse_jd_with_llm
 from pipeline.question_generator import generate_questions
 from pipeline.resume_processor import (
     chunk_text,
+    extract_resume_insights_with_llm,
     extract_text_from_pdf,
     generate_embeddings,
     initialize_chroma_db,
     retrieve_resume_context,
+    store_jd_in_chroma,
     store_resume_in_chroma,
 )
 
@@ -103,7 +105,22 @@ def show_setup() -> None:
                     client=client,
                 )
 
-                parsed_jd = parse_jd_with_llm(st.session_state["jd_text"])
+                store_jd_in_chroma(
+                    jd_text=st.session_state["jd_text"],
+                    session_id=st.session_state["session_id"],
+                    client=client,
+                )
+
+                resume_insights = extract_resume_insights_with_llm(
+                    st.session_state["resume_text"]
+                )
+                st.session_state["resume_insights"] = resume_insights
+
+                parsed_jd = parse_jd_with_llm(
+                    st.session_state["jd_text"],
+                    chroma_client=client,
+                    k_examples=3,
+                )
                 st.session_state["parsed_jd"] = parsed_jd
 
                 company_profile = match_to_company_profile(parsed_jd, client)
@@ -124,6 +141,7 @@ def show_setup() -> None:
                     resume_context=resume_context,
                     preferences=st.session_state["preferences"],
                     chroma_client=client,
+                    resume_text=st.session_state["resume_text"],
                 )
 
                 st.session_state["questions"] = questions

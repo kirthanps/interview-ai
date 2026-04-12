@@ -16,8 +16,10 @@ from pipeline.scorer import (
 class _FakeLLM:
     def __init__(self, payload: dict) -> None:
         self._payload = payload
+        self.last_prompt = ""
 
     def invoke(self, prompt: str) -> str:
+        self.last_prompt = prompt
         assert "INTERVIEW TRANSCRIPT" in prompt
         return json.dumps(self._payload)
 
@@ -99,7 +101,12 @@ def test_build_interview_scores_applies_skip_zero_logic() -> None:
 def test_score_interview_with_injected_llm(tmp_path: Path) -> None:
     prompt_file = tmp_path / "scorer_prompt.txt"
     prompt_file.write_text(
-        "Role={role}\nCompany={company}\n{transcript}", encoding="utf-8")
+        (
+            "Role={role}\nCompany={company}\n{transcript}\n"
+            "RESUME={resume_insights}\nJD={jd_insights}\nQUESTIONS={generated_questions}"
+        ),
+        encoding="utf-8",
+    )
 
     payload = {
         "per_question_scores": [
@@ -122,6 +129,7 @@ def test_score_interview_with_injected_llm(tmp_path: Path) -> None:
         "what_went_well": ["Explained auth flow with practical tradeoffs"],
         "areas_to_improve": ["Provide conflict resolution examples with outcomes"],
         "role_readiness_percent": 60,
+        "role_readiness_label": "Good Foundation",
         "recommended_resources": ["System Design Primer", "Grokking Behavioral Interviews"],
     }
 
@@ -130,6 +138,9 @@ def test_score_interview_with_injected_llm(tmp_path: Path) -> None:
         qa_pairs=_qa_pairs(),
         role="Backend Engineer",
         company="Zepto",
+        resume_insights={"skills": ["Python"]},
+        jd_insights={"role": "Backend Engineer"},
+        generated_questions=[{"question": "Q1"}],
         llm=fake_llm,
         prompt_path=str(prompt_file),
     )
@@ -138,3 +149,5 @@ def test_score_interview_with_injected_llm(tmp_path: Path) -> None:
     assert as_dict["overall_score"] == 6.0
     assert as_dict["role_readiness_label"] == "Good Foundation"
     assert len(as_dict["per_answer_scores"]) == 2
+    assert "RESUME=" in fake_llm.last_prompt
+    assert "QUESTIONS=" in fake_llm.last_prompt
