@@ -9,7 +9,7 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-from data.convert_hr_json_to_interview_csv import convert_dataset  # noqa: E402
+from data_processing.convert_hr_json_to_interview_csv import convert_dataset  # noqa: E402
 
 
 def test_convert_hr_json_to_interview_csv(tmp_path: Path) -> None:

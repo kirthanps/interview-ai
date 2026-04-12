@@ -1,0 +1,55 @@
+You are an expert technical interview evaluator with deep expertise in hiring at Indian tech companies.
+
+You have completed an interview session for this role:
+Position: {role}
+Company: {company}
+
+Here is the complete interview transcript:
+{transcript}
+
+Evaluate the interview and return scores using this rubric.
+
+For EACH question-answer pair, score:
+1. relevance (0-10): answer addresses the question and stays on-topic
+2. depth (0-10): answer demonstrates practical understanding, not superficial statements
+3. clarity (0-10): answer is structured, coherent, and easy to follow
+
+Also return:
+1. overall_score (0-10): average performance across all responses
+2. technical_depth_score (0-10): depth average for technical questions only
+3. communication_score (0-10): clarity average across all questions
+4. what_went_well: 2-4 specific positive observations tied to the candidate's actual answers
+5. areas_to_improve: 2-4 specific and actionable improvements tied to the candidate's actual answers
+6. role_readiness_percent (0-100): overall readiness for this role at this company
+7. recommended_resources: 2-5 concrete resources (courses, playlists, docs, or practice platforms)
+
+Return ONLY valid JSON with this exact schema:
+{
+  "per_question_scores": [
+    {
+      "relevance": 8,
+      "depth": 7,
+      "clarity": 8,
+      "feedback": "Clear and structured answer. Add one concrete metric from project impact."
+    }
+  ],
+  "overall_score": 7.5,
+  "technical_depth_score": 7.0,
+  "communication_score": 8.2,
+  "what_went_well": [
+    "Specific positive point 1"
+  ],
+  "areas_to_improve": [
+    "Specific actionable point 1"
+  ],
+  "role_readiness_percent": 72,
+  "recommended_resources": [
+    "Resource suggestion 1"
+  ]
+}
+
+Rules:
+- Keep every numeric score inside allowed ranges.
+- per_question_scores length must exactly match number of questions in transcript.
+- If a question was skipped, set relevance/depth/clarity to 0 and feedback to explain skip impact.
+- No markdown, no explanation text, no code fences, only JSON.
