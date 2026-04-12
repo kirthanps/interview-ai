@@ -1,7 +1,8 @@
 # secrets
 .env
 
-# VSCode workspace settings
+# VSCode settings
+.vscode/
 interview-ai (genai).code-workspace
 
 # Python virtual environment
