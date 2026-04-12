@@ -9,6 +9,7 @@ venv/
 
 # Python cache files
 __pycache__/
+.pytest_cache/
 
 # model files
 models/
@@ -16,5 +17,6 @@ models/
 # ai related files
 ai_files/
 
-# chroma db
+# data files
 chroma_store/
+data/
