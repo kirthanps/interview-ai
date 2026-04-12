@@ -24,14 +24,14 @@ Also return:
 7. recommended_resources: 2-5 concrete resources (courses, playlists, docs, or practice platforms)
 
 Return ONLY valid JSON with this exact schema:
-{
+{{
   "per_question_scores": [
-    {
+    {{
       "relevance": 8,
       "depth": 7,
       "clarity": 8,
       "feedback": "Clear and structured answer. Add one concrete metric from project impact."
-    }
+    }}
   ],
   "overall_score": 7.5,
   "technical_depth_score": 7.0,
@@ -46,7 +46,7 @@ Return ONLY valid JSON with this exact schema:
   "recommended_resources": [
     "Resource suggestion 1"
   ]
-}
+}}
 
 Rules:
 - Keep every numeric score inside allowed ranges.

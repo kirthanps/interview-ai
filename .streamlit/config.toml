@@ -1,0 +1,9 @@
+[server]
+# Prevent Streamlit from introspecting every imported module (including optional
+# transformers vision modules that try to import torchvision).
+fileWatcherType = "none"
+runOnSave = false
+
+[runner]
+# Keep startup cleaner in this project where large ML libs use lazy imports.
+fastReruns = true
