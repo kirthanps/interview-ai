@@ -4,7 +4,7 @@ experiment:
   focus_area: mixed
   num_questions: 10
   random_seed: 42
-  request_delay_seconds: 1.5
+  request_delay_seconds: 2.5
   retry:
     max_retries: 4
     backoff_base_seconds: 2.0

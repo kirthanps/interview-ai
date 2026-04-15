@@ -1,0 +1,407 @@
+{
+  "combo_id": "combo_01",
+  "model_alias": "llama33",
+  "model_id": "llama-3.3-70b-versatile",
+  "pipeline_flow": "normal_session_parity",
+  "input_hash": "986ff83e494c6309ddf5a8d875481c29e1616b81d0b821a94375db4081a73c74",
+  "resume_context": [
+    "Munnaluri\n \nRishikesh\n \nKengeri,\n \nBangalore,\n \nKarnataka\n \n560060\n \n:\n \n+91\n \n9059076106\n \ngmail\n \n:\n \nrishikeshjonin@gmail.com\n \nLinkedIn:\n \nhttps://www .linkedin.com/in/rishikesh-munnaluri-143b34293/\n \n \n \n \n \n \nProfile\n \nsummary\n \nB.Tech\n \n(Hons.)\n \nundergraduate\n \nat\n \nRV\n \nUniversity\n \nwith\n \na\n \nstrong\n \nfoundation\n \nin\n \nPython,\n \nMachine\n \nLearning,\n \nDeep\n \nLearning,\n \nIoT,\n \nand\n \nROS.\n \nPassionate\n \nabout\n \nGenAI,\n \nComputer\n \nVision,\n \nand\n \nAI\n \nin\n \nIoT.\n \nCurrently\n \nseeking",
+    "optimal\n \nstrategy\n \nto\n \ndifferent\n \nmodel\n \narchitectures\n \nand\n \napply\n \nit\n \nin\n \nmultimodal\n \nlearning\n \nsetups.\n \n \nFaultDetect\n \n-\n \nAI\n \nfor\n \nQuality\n \nInspection\n \n(\nToyota\n \nKirloskar\n \nAuto\n \nparts\n)\n \n-\n \nBuilt\n \na\n \ndefect\n \ndetection\n \nsystem\n \nusing\n \nTensorFlow,\n \nOpenCV,\n \nand\n \nNumPy.\n \n-\n \nAchieved\n \n93.2\\%\n \naccuracy\n \nin\n \ndetecting\n \nmissing/faulty\n \nparts\n \nin\n \npallets\n \nand\n \nimproving\n \nobject\n \nrecognition.\n \n \nSilentSync\n \n-\n \nAssistive\n \nTech\n \nfor\n \nDeaf\n \nand",
+    "-\n \nAssistive\n \nTech\n \nfor\n \nDeaf\n \nand\n \nMute\n \n(\nRV\n \nUniversity\n)\n \n-\n \nBuilt\n \na\n \nsmart\n \nglove\n \nthat\n \ntranslates\n \nsign\n \nlanguage\n \ninto\n \ntext\n \nand\n \nspeech\n \nusing\n \nsensors\n \nand\n \nBluetooth.\n \n \n-\n \nDeveloped\n \na\n \nreal-time\n \ncommunication\n \nsystem\n \nusing\n \nArduino\n \nIDE\n \nand\n \nPython.\n \n \nSkills\n \n \n-\n \nProgramming:\n \nPython,\n \nC/C++,\n \nJava,\n \nModern\n \nC++\n \n-\n \nML/DL:\n \nTensorFlow,\n \nKeras,\n \nScikit-Learn,\n \nOpenCV,\n \nHugging\n \nFace,\n \nPyTorch,\n \nNumPy,\n \nPandas,\n \nBERT",
+    "SkillUp\n \n-\n \nCompleted:\n \n01/06/2025\n \n \nMachine\n \nLearning\n \nSpecialization\n \nby\n \nAndrew\n \nNg\n  \n                                                                                                        \n       \nCoursera\n \n-\n \nCompleted:\n \n26/06/2024\n \n \nProgramming\n \nin\n \nModern\n \nC++\n \n  \n                                                                                                        \n                \n \n \nNPTEL\n \n-\n \nSecured\n \nMarks:\n \n65%\n \n \n \nAchievements\n \n \n-\n \n1st\n \nPlace,",
+    "of\n \nautomated\n \ninspections\n \nusing\n \nDeep\n \nLearning\n \nand\n \nOpenCV.\n \n \nComputer\n \nVision\n \nIntern,\n \nToyota\n \nKirloskar\n \nAuto\n \nParts\n                                                                         \nJul\n \n2024\n \n\u2013\n \nJul\n \n2024\n \n-\n \nDeveloped\n \nML-based\n \ndefect\n \ndetection\n \nmodels\n \nfor\n \nmanufacturing\n \nquality\n \ncontrol.\n  \n \n-\n \nImproved\n \naccuracy\n \nof\n \nautomated\n \ninspections\n \nusing\n \nDeep\n \nLearning\n \nand\n \nOpenCV.\n \n \nComputer\n \nVision\n \nIntern,\n \nRV\n \nUniversity"
+  ],
+  "retrieval_query": "Python C++ TensorFlow PyTorch OpenCV FastAPI React",
+  "parsed_jd": {
+    "role": "AI/ML Intern \u2013 Computer Vision & GenAI Applications",
+    "company": "N/A",
+    "employment_type": "Internship",
+    "experience_level": "N/A",
+    "location": "Bengaluru",
+    "team": "N/A",
+    "skills": [
+      "Python",
+      "C++",
+      "TensorFlow",
+      "PyTorch",
+      "OpenCV",
+      "FastAPI",
+      "React"
+    ],
+    "tools": [
+      "Docker",
+      "AWS",
+      "LangChain",
+      "LangGraph",
+      "Hugging Face"
+    ],
+    "responsibilities": [
+      "Develop and optimize computer vision models",
+      "Build and experiment with deep learning architectures",
+      "Design GenAI-powered automation workflows",
+      "Integrate LLM pipelines",
+      "Develop backend APIs",
+      "Work on data preprocessing, feature engineering, and model evaluation",
+      "Collaborate with product teams to deploy AI solutions"
+    ],
+    "qualifications": [
+      "Strong programming in Python, C++"
+    ],
+    "interview_focus": [
+      "N/A"
+    ],
+    "company_signals": [
+      "Real-world AI + GenAI production systems",
+      "Industrial AI applications",
+      "Mentorship and potential full-time conversion"
+    ],
+    "missing_info": [
+      "Company name",
+      "Experience level",
+      "Team"
+    ]
+  },
+  "company_profile": {
+    "company": "IBM",
+    "role": "AI Engineer",
+    "hiring_notes": "Looking for candidates with strong expertise in AI Engineer, problem-solving ability, and teamwork. Candidate should be adaptable and capable of handling real-world challenges in IBM.",
+    "skills": "Django, CSS, JavaScript, Python",
+    "experience_level": "2-3 years"
+  },
+  "resume_insights": {
+    "candidate_name": "Rishikesh Munnaluri",
+    "headline": "AI/ML Intern | Python | Machine Learning",
+    "experience_level": "Intern",
+    "education": [
+      {
+        "degree": "B.Tech (Hons.)",
+        "field": "Computer Science",
+        "institution": "RV University",
+        "year": "2023-2027"
+      },
+      {
+        "degree": "Class 12",
+        "field": "N/A",
+        "institution": "Narayana Jr College",
+        "year": "2021-2023"
+      },
+      {
+        "degree": "Class 10",
+        "field": "N/A",
+        "institution": "Narayana School",
+        "year": "2013-2021"
+      }
+    ],
+    "skills": [
+      "Python",
+      "C/C++",
+      "Java",
+      "Modern C++",
+      "TensorFlow",
+      "Keras",
+      "Scikit-Learn",
+      "OpenCV",
+      "Hugging Face",
+      "PyTorch",
+      "NumPy",
+      "Pandas",
+      "BERT",
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "Streamlit",
+      "FastAPI"
+    ],
+    "tools": [
+      "n8n",
+      "Docker",
+      "Kubernetes",
+      "AWS",
+      "Jira",
+      "Cisco Packet Tracer",
+      "Linux CLI",
+      "Git/GitHub",
+      "ROS2",
+      "Arduino",
+      "MySQL"
+    ],
+    "projects": [
+      {
+        "name": "SalesBUDDY",
+        "summary": "AI-Powered B2B Sales Automation System",
+        "tech_stack": [
+          "React",
+          "FastAPI",
+          "LangGraph",
+          "n8n"
+        ],
+        "impact": "Automated lead profiling, BANT scoring, personalized outreach, and response tracking"
+      },
+      {
+        "name": "Active Learning for Multimodal Models",
+        "summary": "Experimenting with active learning on CIFAR-10 using VGG16 and advanced strategies like CoreSet and VAAL",
+        "tech_stack": [
+          "VGG16",
+          "CoreSet",
+          "VAAL"
+        ],
+        "impact": "Evaluating sampling efficiency for model improvement with limited labels"
+      },
+      {
+        "name": "FaultDetect",
+        "summary": "AI for Quality Inspection",
+        "tech_stack": [
+          "TensorFlow",
+          "OpenCV",
+          "NumPy"
+        ],
+        "impact": "Achieved 93.2% accuracy in detecting missing/faulty parts in pallets and improving object recognition"
+      },
+      {
+        "name": "SilentSync",
+        "summary": "Assistive Tech for Deaf and Mute",
+        "tech_stack": [
+          "Arduino",
+          "Python",
+          "Bluetooth"
+        ],
+        "impact": "Built a smart glove that translates sign language into text and speech"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Zodopt Technologies Solutions",
+        "role": "AI/ML Intern",
+        "duration": "Jun 2025 - Present",
+        "highlights": [
+          "Developed ML-based defect detection models for manufacturing quality control",
+          "Improved accuracy of automated inspections using Deep Learning and OpenCV"
+        ]
+      },
+      {
+        "company": "Toyota Kirloskar Auto Parts",
+        "role": "Computer Vision Intern",
+        "duration": "Jul 2024 - Jul 2024",
+        "highlights": [
+          "Developed ML-based defect detection models for manufacturing quality control",
+          "Improved accuracy of automated inspections using Deep Learning and OpenCV"
+        ]
+      },
+      {
+        "company": "RV University",
+        "role": "Computer Vision Intern",
+        "duration": "Jul 2024 - Sep 2024",
+        "highlights": [
+          "Developed a CNN model for 3D ultrasound reconstruction without external tracking",
+          "Implemented image processing techniques and evaluated performance using metrics"
+        ]
+      }
+    ],
+    "certifications": [
+      "Agile Scrum Foundation",
+      "Machine Learning Specialization by Andrew Ng",
+      "Programming in Modern C++"
+    ],
+    "achievements": [
+      "1st Place, IEEE Pre-Conference (March 2024)",
+      "SilentSync showcased as an innovative AI project",
+      "Multiple awards in Public speaking and SIP Abacus competitions"
+    ],
+    "summary": "Highly motivated and detail-oriented AI/ML intern with a strong foundation in Python, Machine Learning, and Deep Learning",
+    "missing_info": [
+      "N/A"
+    ]
+  },
+  "questions": [
+    {
+      "question_id": "combo_01_llama33_q01",
+      "question_text": "Can you tell me about your experience working with TensorFlow and OpenCV in your project, FaultDetect?",
+      "question": "Can you tell me about your experience working with TensorFlow and OpenCV in your project, FaultDetect?",
+      "type": "technical",
+      "difficulty": "hard",
+      "focus_area": "mixed",
+      "hint": [
+        "Reference the FaultDetect project from the resume",
+        "Explain how you used TensorFlow and OpenCV",
+        "Discuss the challenges you faced and how you overcame them"
+      ],
+      "hints": [
+        "Reference the FaultDetect project from the resume",
+        "Explain how you used TensorFlow and OpenCV",
+        "Discuss the challenges you faced and how you overcame them"
+      ],
+      "rationale": "Tests the candidate's experience with specific technologies and problem-solving skills"
+    },
+    {
+      "question_id": "combo_01_llama33_q02",
+      "question_text": "How would you design a real-time object detection system using PyTorch and OpenCV?",
+      "question": "How would you design a real-time object detection system using PyTorch and OpenCV?",
+      "type": "technical",
+      "difficulty": "hard",
+      "focus_area": "mixed",
+      "hint": [
+        "Discuss the architecture of the system",
+        "Explain how you would optimize the system for real-time performance",
+        "Consider the tradeoffs between accuracy and speed"
+      ],
+      "hints": [
+        "Discuss the architecture of the system",
+        "Explain how you would optimize the system for real-time performance",
+        "Consider the tradeoffs between accuracy and speed"
+      ],
+      "rationale": "Tests the candidate's knowledge of PyTorch and OpenCV, as well as their ability to design a complex system"
+    },
+    {
+      "question_id": "combo_01_llama33_q03",
+      "question_text": "Can you walk me through your approach to developing the smart glove for the SilentSync project?",
+      "question": "Can you walk me through your approach to developing the smart glove for the SilentSync project?",
+      "type": "technical",
+      "difficulty": "hard",
+      "focus_area": "mixed",
+      "hint": [
+        "Explain the hardware and software components of the glove",
+        "Discuss how you integrated the sensors and Bluetooth technology",
+        "Describe the challenges you faced and how you overcame them"
+      ],
+      "hints": [
+        "Explain the hardware and software components of the glove",
+        "Discuss how you integrated the sensors and Bluetooth technology",
+        "Describe the challenges you faced and how you overcame them"
+      ],
+      "rationale": "Tests the candidate's experience with IoT projects and their ability to integrate hardware and software components"
+    },
+    {
+      "question_id": "combo_01_llama33_q04",
+      "question_text": "How would you design a system to automate the inspection of manufacturing quality control using computer vision?",
+      "question": "How would you design a system to automate the inspection of manufacturing quality control using computer vision?",
+      "type": "system_design",
+      "difficulty": "hard",
+      "focus_area": "mixed",
+      "hint": [
+        "Discuss the architecture of the system",
+        "Explain how you would use computer vision to detect defects",
+        "Consider the tradeoffs between accuracy and speed"
+      ],
+      "hints": [
+        "Discuss the architecture of the system",
+        "Explain how you would use computer vision to detect defects",
+        "Consider the tradeoffs between accuracy and speed"
+      ],
+      "rationale": "Tests the candidate's ability to design a complex system and their knowledge of computer vision"
+    },
+    {
+      "question_id": "combo_01_llama33_q05",
+      "question_text": "Can you explain how you would integrate a language model like BERT into a computer vision system for image classification?",
+      "question": "Can you explain how you would integrate a language model like BERT into a computer vision system for image classification?",
+      "type": "system_design",
+      "difficulty": "hard",
+      "focus_area": "mixed",
+      "hint": [
+        "Discuss the architecture of the system",
+        "Explain how you would use BERT to improve image classification",
+        "Consider the tradeoffs between accuracy and computational resources"
+      ],
+      "hints": [
+        "Discuss the architecture of the system",
+        "Explain how you would use BERT to improve image classification",
+        "Consider the tradeoffs between accuracy and computational resources"
+      ],
+      "rationale": "Tests the candidate's knowledge of NLP and computer vision, as well as their ability to integrate different technologies"
+    },
+    {
+      "question_id": "combo_01_llama33_q06",
+      "question_text": "How would you approach the development of a real-time communication system for the smart glove in the SilentSync project?",
+      "question": "How would you approach the development of a real-time communication system for the smart glove in the SilentSync project?",
+      "type": "system_design",
+      "difficulty": "hard",
+      "focus_area": "mixed",
+      "hint": [
+        "Discuss the architecture of the system",
+        "Explain how you would use Arduino IDE and Python to develop the system",
+        "Consider the tradeoffs between latency and reliability"
+      ],
+      "hints": [
+        "Discuss the architecture of the system",
+        "Explain how you would use Arduino IDE and Python to develop the system",
+        "Consider the tradeoffs between latency and reliability"
+      ],
+      "rationale": "Tests the candidate's experience with real-time systems and their ability to design a complex system"
+    },
+    {
+      "question_id": "combo_01_llama33_q07",
+      "question_text": "Can you describe a situation where you had to work with a team to develop a complex AI system?",
+      "question": "Can you describe a situation where you had to work with a team to develop a complex AI system?",
+      "type": "situational",
+      "difficulty": "hard",
+      "focus_area": "mixed",
+      "hint": [
+        "Reference a project from the resume",
+        "Explain the role you played in the team",
+        "Discuss the challenges you faced and how you overcame them"
+      ],
+      "hints": [
+        "Reference a project from the resume",
+        "Explain the role you played in the team",
+        "Discuss the challenges you faced and how you overcame them"
+      ],
+      "rationale": "Tests the candidate's ability to work in a team and their experience with complex AI systems"
+    },
+    {
+      "question_id": "combo_01_llama33_q08",
+      "question_text": "How would you handle a situation where the accuracy of a computer vision model is not meeting the required standards?",
+      "question": "How would you handle a situation where the accuracy of a computer vision model is not meeting the required standards?",
+      "type": "situational",
+      "difficulty": "hard",
+      "focus_area": "mixed",
+      "hint": [
+        "Discuss the steps you would take to debug the model",
+        "Explain how you would collect and analyze data to improve the model",
+        "Consider the tradeoffs between accuracy and computational resources"
+      ],
+      "hints": [
+        "Discuss the steps you would take to debug the model",
+        "Explain how you would collect and analyze data to improve the model",
+        "Consider the tradeoffs between accuracy and computational resources"
+      ],
+      "rationale": "Tests the candidate's problem-solving skills and their ability to handle complex situations"
+    },
+    {
+      "question_id": "combo_01_llama33_q09",
+      "question_text": "Can you tell me about your experience with agile development methodologies and how you have applied them in your previous projects?",
+      "question": "Can you tell me about your experience with agile development methodologies and how you have applied them in your previous projects?",
+      "type": "hr",
+      "difficulty": "hard",
+      "focus_area": "mixed",
+      "hint": [
+        "Reference a project from the resume",
+        "Explain how you applied agile methodologies",
+        "Discuss the benefits and challenges of using agile methodologies"
+      ],
+      "hints": [
+        "Reference a project from the resume",
+        "Explain how you applied agile methodologies",
+        "Discuss the benefits and challenges of using agile methodologies"
+      ],
+      "rationale": "Tests the candidate's experience with agile development methodologies and their ability to adapt to different development environments"
+    },
+    {
+      "question_id": "combo_01_llama33_q10",
+      "question_text": "What are your long-term career goals, and how do you see yourself contributing to the field of AI and computer vision?",
+      "question": "What are your long-term career goals, and how do you see yourself contributing to the field of AI and computer vision?",
+      "type": "hr",
+      "difficulty": "hard",
+      "focus_area": "mixed",
+      "hint": [
+        "Discuss your career aspirations",
+        "Explain how you see yourself contributing to the field",
+        "Consider the alignment between your goals and the company's expectations"
+      ],
+      "hints": [
+        "Discuss your career aspirations",
+        "Explain how you see yourself contributing to the field",
+        "Consider the alignment between your goals and the company's expectations"
+      ],
+      "rationale": "Tests the candidate's career aspirations and their ability to align with the company's expectations"
+    }
+  ]
+}

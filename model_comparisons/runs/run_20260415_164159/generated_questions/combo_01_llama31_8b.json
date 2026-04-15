@@ -1,0 +1,406 @@
+{
+  "combo_id": "combo_01",
+  "model_alias": "llama31_8b",
+  "model_id": "llama-3.1-8b-instant",
+  "pipeline_flow": "normal_session_parity",
+  "input_hash": "986ff83e494c6309ddf5a8d875481c29e1616b81d0b821a94375db4081a73c74",
+  "resume_context": [
+    "Face,\n \nPyTorch,\n \nNumPy,\n \nPandas,\n \nBERT\n \n-\n \nData\n \nScience:\n \nData\n \nCleaning,\n \nEDA,\n \nFeature\n \nEngineering,\n \nModel\n \nEvaluation,\n \nClustering\n \n(K-Means,\n \nDBSCAN),\n \nBERT\n \nSummarization\n \n-\n \nWeb\n \nTechnologies:\n \nHTML,\n \nCSS,\n \nJavaScript,\n \nStreamlit,\n \nFastAPI\n \n-\n \nTools:\n \nn8n,\n \nDocker,\n \nKubernetes,\n \nAWS,\n \nJira,\n \nCisco\n \nPacket\n \nTracer,\n \nLinux\n \nCLI,\n \nGit/GitHub,\n \nROS2,\n \nArduino,\n \nMySQL\n \n \nCourses\n \nand\n \nCertifications\n \n \nCV\n \nIntern\n \nin\n \nTKAP\n \n-\n \nInternship",
+    "-\n \nAssistive\n \nTech\n \nfor\n \nDeaf\n \nand\n \nMute\n \n(\nRV\n \nUniversity\n)\n \n-\n \nBuilt\n \na\n \nsmart\n \nglove\n \nthat\n \ntranslates\n \nsign\n \nlanguage\n \ninto\n \ntext\n \nand\n \nspeech\n \nusing\n \nsensors\n \nand\n \nBluetooth.\n \n \n-\n \nDeveloped\n \na\n \nreal-time\n \ncommunication\n \nsystem\n \nusing\n \nArduino\n \nIDE\n \nand\n \nPython.\n \n \nSkills\n \n \n-\n \nProgramming:\n \nPython,\n \nC/C++,\n \nJava,\n \nModern\n \nC++\n \n-\n \nML/DL:\n \nTensorFlow,\n \nKeras,\n \nScikit-Learn,\n \nOpenCV,\n \nHugging\n \nFace,\n \nPyTorch,\n \nNumPy,\n \nPandas,\n \nBERT",
+    "optimal\n \nstrategy\n \nto\n \ndifferent\n \nmodel\n \narchitectures\n \nand\n \napply\n \nit\n \nin\n \nmultimodal\n \nlearning\n \nsetups.\n \n \nFaultDetect\n \n-\n \nAI\n \nfor\n \nQuality\n \nInspection\n \n(\nToyota\n \nKirloskar\n \nAuto\n \nparts\n)\n \n-\n \nBuilt\n \na\n \ndefect\n \ndetection\n \nsystem\n \nusing\n \nTensorFlow,\n \nOpenCV,\n \nand\n \nNumPy.\n \n-\n \nAchieved\n \n93.2\\%\n \naccuracy\n \nin\n \ndetecting\n \nmissing/faulty\n \nparts\n \nin\n \npallets\n \nand\n \nimproving\n \nobject\n \nrecognition.\n \n \nSilentSync\n \n-\n \nAssistive\n \nTech\n \nfor\n \nDeaf\n \nand",
+    "Munnaluri\n \nRishikesh\n \nKengeri,\n \nBangalore,\n \nKarnataka\n \n560060\n \n:\n \n+91\n \n9059076106\n \ngmail\n \n:\n \nrishikeshjonin@gmail.com\n \nLinkedIn:\n \nhttps://www .linkedin.com/in/rishikesh-munnaluri-143b34293/\n \n \n \n \n \n \nProfile\n \nsummary\n \nB.Tech\n \n(Hons.)\n \nundergraduate\n \nat\n \nRV\n \nUniversity\n \nwith\n \na\n \nstrong\n \nfoundation\n \nin\n \nPython,\n \nMachine\n \nLearning,\n \nDeep\n \nLearning,\n \nIoT,\n \nand\n \nROS.\n \nPassionate\n \nabout\n \nGenAI,\n \nComputer\n \nVision,\n \nand\n \nAI\n \nin\n \nIoT.\n \nCurrently\n \nseeking",
+    "of\n \nautomated\n \ninspections\n \nusing\n \nDeep\n \nLearning\n \nand\n \nOpenCV.\n \n \nComputer\n \nVision\n \nIntern,\n \nToyota\n \nKirloskar\n \nAuto\n \nParts\n                                                                         \nJul\n \n2024\n \n\u2013\n \nJul\n \n2024\n \n-\n \nDeveloped\n \nML-based\n \ndefect\n \ndetection\n \nmodels\n \nfor\n \nmanufacturing\n \nquality\n \ncontrol.\n  \n \n-\n \nImproved\n \naccuracy\n \nof\n \nautomated\n \ninspections\n \nusing\n \nDeep\n \nLearning\n \nand\n \nOpenCV.\n \n \nComputer\n \nVision\n \nIntern,\n \nRV\n \nUniversity"
+  ],
+  "retrieval_query": "Python C++ TensorFlow PyTorch OpenCV FastAPI LangChain LangGraph Hugging Face Docker AWS MLOps tools",
+  "parsed_jd": {
+    "role": "AI/ML Intern \u2013 Computer Vision & GenAI Applications",
+    "company": "Zepto",
+    "employment_type": "Internship",
+    "experience_level": "N/A",
+    "location": "Bengaluru (Hybrid)",
+    "team": "N/A",
+    "skills": [
+      "Python",
+      "C++",
+      "TensorFlow",
+      "PyTorch",
+      "OpenCV",
+      "FastAPI",
+      "LangChain",
+      "LangGraph",
+      "Hugging Face",
+      "Docker",
+      "AWS",
+      "MLOps tools"
+    ],
+    "tools": [
+      "Docker",
+      "AWS"
+    ],
+    "responsibilities": [
+      "Develop and optimize computer vision models for industrial use cases",
+      "Build and experiment with deep learning architectures",
+      "Design GenAI-powered automation workflows",
+      "Integrate LLM pipelines",
+      "Develop backend APIs",
+      "Work on data preprocessing, feature engineering, and model evaluation",
+      "Collaborate with product teams to deploy AI solutions in production environments"
+    ],
+    "qualifications": [
+      "Strong programming in Python, C++",
+      "Hands-on with TensorFlow / PyTorch / OpenCV",
+      "Understanding of ML lifecycle",
+      "Exposure to LLMs / GenAI ecosystems",
+      "Basic frontend/backend exposure"
+    ],
+    "interview_focus": [
+      "ML lifecycle",
+      "LLMs / GenAI ecosystems",
+      "backend fundamentals"
+    ],
+    "company_signals": [
+      "Mentorship and potential full-time conversion",
+      "Exposure to industrial AI applications"
+    ],
+    "missing_info": [
+      "N/A"
+    ]
+  },
+  "company_profile": {
+    "company": "GE",
+    "role": "AI Engineer",
+    "hiring_notes": "Looking for candidates with strong expertise in AI Engineer, problem-solving ability, and teamwork. Candidate should be adaptable and capable of handling real-world challenges in GE.",
+    "skills": "GraphQL, CSS, GCP, Kubernetes",
+    "experience_level": "2-3 years"
+  },
+  "resume_insights": {
+    "candidate_name": "Rishikesh Munnaluri",
+    "headline": "Backend Engineer | Python | AWS",
+    "experience_level": "3-5 years",
+    "education": [
+      {
+        "degree": "B.Tech (Hons.)",
+        "field": "Computer Science",
+        "institution": "RV University",
+        "year": "2023-Present"
+      }
+    ],
+    "skills": [
+      "Python",
+      "C/C++",
+      "Java",
+      "Modern C++",
+      "TensorFlow",
+      "Keras",
+      "Scikit-Learn",
+      "OpenCV",
+      "Hugging Face",
+      "PyTorch",
+      "NumPy",
+      "Pandas",
+      "BERT",
+      "Data Cleaning",
+      "EDA",
+      "Feature Engineering",
+      "Model Evaluation",
+      "Clustering (K-Means, DBSCAN)",
+      "BERT Summarization",
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "Streamlit",
+      "FastAPI",
+      "n8n",
+      "Docker",
+      "Kubernetes",
+      "AWS",
+      "Jira",
+      "Cisco Packet Tracer",
+      "Linux CLI",
+      "Git/GitHub",
+      "ROS2",
+      "Arduino",
+      "MySQL"
+    ],
+    "tools": [
+      "Docker",
+      "Git",
+      "PostgreSQL"
+    ],
+    "projects": [
+      {
+        "name": "SalesBUDDY",
+        "summary": "AI-Powered B2B Sales Automation System (Zodopt Technologies)",
+        "tech_stack": [
+          "Python",
+          "React",
+          "FastAPI",
+          "LangGraph",
+          "n8n"
+        ],
+        "impact": "Developing an AI-powered sales assistant to automate lead profiling, BANT scoring, personalized outreach, and response tracking."
+      },
+      {
+        "name": "Active Learning for Multimodal Models",
+        "summary": "Experimenting with active learning on CIFAR-10 using VGG16 and advanced strategies like CoreSet and VAAL.",
+        "tech_stack": [
+          "Python",
+          "VGG16"
+        ],
+        "impact": "Evaluating sampling efficiency for model improvement with limited labels and planning to generalize optimal strategy to different model architectures and apply it in multimodal learning setups."
+      },
+      {
+        "name": "FaultDetect",
+        "summary": "AI for Quality Inspection (Toyota Kirloskar Auto Parts)",
+        "tech_stack": [
+          "TensorFlow",
+          "OpenCV",
+          "NumPy"
+        ],
+        "impact": "Built a defect detection system using TensorFlow, OpenCV, and NumPy, achieving 93.2% accuracy in detecting missing/faulty parts in pallets and improving object recognition."
+      },
+      {
+        "name": "SilentSync",
+        "summary": "Assistive Tech for Deaf and Mute (RV University)",
+        "tech_stack": [
+          "Python",
+          "Arduino IDE"
+        ],
+        "impact": "Built a smart glove that translates sign language into text and speech using sensors and Bluetooth, and developed a real-time communication system using Arduino IDE and Python."
+      }
+    ],
+    "experience": [
+      {
+        "company": "Zodopt Technologies Solutions",
+        "role": "AI/ML Intern",
+        "duration": "Jun 2025-Present",
+        "highlights": [
+          "Developed ML-based defect detection models for manufacturing quality control.",
+          "Improved accuracy of automated inspections using Deep Learning and OpenCV."
+        ]
+      },
+      {
+        "company": "Toyota Kirloskar Auto Parts",
+        "role": "Computer Vision Intern",
+        "duration": "Jul 2024-Jul 2024",
+        "highlights": [
+          "Developed ML-based defect detection models for manufacturing quality control.",
+          "Improved accuracy of automated inspections using Deep Learning and OpenCV."
+        ]
+      },
+      {
+        "company": "RV University",
+        "role": "Computer Vision Intern",
+        "duration": "Jul 2024-Sep 2024",
+        "highlights": [
+          "Developed a CNN model for 3D ultrasound reconstruction without external tracking.",
+          "Implemented image processing techniques and evaluated performance using metrics."
+        ]
+      }
+    ],
+    "certifications": [
+      "Agile Scrum Foundation",
+      "Machine Learning Specialization by Andrew Ng"
+    ],
+    "achievements": [
+      "1st Place, IEEE Pre-Conference (March 2024)",
+      "Multiple awards in Public speaking and SIP Abacus competitions"
+    ],
+    "summary": "Passionate about GenAI, Computer Vision, and AI in IoT. Currently seeking internship opportunities to apply AI expertise to real-world challenges.",
+    "missing_info": [
+      "N/A"
+    ]
+  },
+  "questions": [
+    {
+      "question_id": "combo_01_llama31_8b_q01",
+      "question_text": "Can you tell me about a time when you overcame a difficult problem in a project? How did you approach it?",
+      "question": "Can you tell me about a time when you overcame a difficult problem in a project? How did you approach it?",
+      "type": "hr",
+      "difficulty": "hard",
+      "focus_area": "mixed",
+      "hint": [
+        "Use STAR method to structure answer",
+        "Mention problem, approach, and outcome",
+        "Highlight a specific skill or trait used"
+      ],
+      "hints": [
+        "Use STAR method to structure answer",
+        "Mention problem, approach, and outcome",
+        "Highlight a specific skill or trait used"
+      ],
+      "rationale": "Tests problem-solving skills and adaptability"
+    },
+    {
+      "question_id": "combo_01_llama31_8b_q02",
+      "question_text": "How do you stay up-to-date with the latest developments in computer vision and GenAI? Can you give me an example of a recent breakthrough that interests you?",
+      "question": "How do you stay up-to-date with the latest developments in computer vision and GenAI? Can you give me an example of a recent breakthrough that interests you?",
+      "type": "technical",
+      "difficulty": "hard",
+      "focus_area": "technical",
+      "hint": [
+        "Show familiarity with recent research or papers",
+        "Mention a specific breakthrough or area of interest",
+        "Explain why it's relevant to the role"
+      ],
+      "hints": [
+        "Show familiarity with recent research or papers",
+        "Mention a specific breakthrough or area of interest",
+        "Explain why it's relevant to the role"
+      ],
+      "rationale": "Tests knowledge and enthusiasm for the field"
+    },
+    {
+      "question_id": "combo_01_llama31_8b_q03",
+      "question_text": "Design a system to detect defects in industrial manufacturing using computer vision and deep learning. How would you architect the system, and what tradeoffs would you make?",
+      "question": "Design a system to detect defects in industrial manufacturing using computer vision and deep learning. How would you architect the system, and what tradeoffs would you make?",
+      "type": "system_design",
+      "difficulty": "hard",
+      "focus_area": "mixed",
+      "hint": [
+        "Reference FaultDetect project from the resume",
+        "Consider scalability, accuracy, and deployment",
+        "Explain one tradeoff clearly"
+      ],
+      "hints": [
+        "Reference FaultDetect project from the resume",
+        "Consider scalability, accuracy, and deployment",
+        "Explain one tradeoff clearly"
+      ],
+      "rationale": "Tests system design skills and tradeoff analysis"
+    },
+    {
+      "question_id": "combo_01_llama31_8b_q04",
+      "question_text": "Can you explain the concept of active learning in the context of multimodal models? How would you implement it in your own project?",
+      "question": "Can you explain the concept of active learning in the context of multimodal models? How would you implement it in your own project?",
+      "type": "technical",
+      "difficulty": "hard",
+      "focus_area": "technical",
+      "hint": [
+        "Reference Active Learning for Multimodal Models project",
+        "Mention key concepts and techniques",
+        "Explain implementation and tradeoffs"
+      ],
+      "hints": [
+        "Reference Active Learning for Multimodal Models project",
+        "Mention key concepts and techniques",
+        "Explain implementation and tradeoffs"
+      ],
+      "rationale": "Tests knowledge and implementation skills in a specific area"
+    },
+    {
+      "question_id": "combo_01_llama31_8b_q05",
+      "question_text": "Imagine you are working on a team to deploy a GenAI-powered automation workflow. How would you collaborate with the team, and what role would you take on?",
+      "question": "Imagine you are working on a team to deploy a GenAI-powered automation workflow. How would you collaborate with the team, and what role would you take on?",
+      "type": "system_design",
+      "difficulty": "hard",
+      "focus_area": "mixed",
+      "hint": [
+        "Consider communication, coordination, and roles",
+        "Mention one specific challenge or tradeoff",
+        "Explain how you would address it"
+      ],
+      "hints": [
+        "Consider communication, coordination, and roles",
+        "Mention one specific challenge or tradeoff",
+        "Explain how you would address it"
+      ],
+      "rationale": "Tests collaboration and system design skills"
+    },
+    {
+      "question_id": "combo_01_llama31_8b_q06",
+      "question_text": "Can you tell me about a time when you had to balance competing priorities in a project? How did you manage your time and resources?",
+      "question": "Can you tell me about a time when you had to balance competing priorities in a project? How did you manage your time and resources?",
+      "type": "hr",
+      "difficulty": "hard",
+      "focus_area": "mixed",
+      "hint": [
+        "Use STAR method to structure answer",
+        "Mention priorities, approach, and outcome",
+        "Highlight a specific skill or trait used"
+      ],
+      "hints": [
+        "Use STAR method to structure answer",
+        "Mention priorities, approach, and outcome",
+        "Highlight a specific skill or trait used"
+      ],
+      "rationale": "Tests time management and prioritization skills"
+    },
+    {
+      "question_id": "combo_01_llama31_8b_q07",
+      "question_text": "How do you approach debugging and troubleshooting issues in a deep learning model? Can you give me an example from one of your projects?",
+      "question": "How do you approach debugging and troubleshooting issues in a deep learning model? Can you give me an example from one of your projects?",
+      "type": "technical",
+      "difficulty": "hard",
+      "focus_area": "technical",
+      "hint": [
+        "Show familiarity with debugging techniques",
+        "Mention a specific example or project",
+        "Explain steps taken and outcome"
+      ],
+      "hints": [
+        "Show familiarity with debugging techniques",
+        "Mention a specific example or project",
+        "Explain steps taken and outcome"
+      ],
+      "rationale": "Tests debugging and troubleshooting skills"
+    },
+    {
+      "question_id": "combo_01_llama31_8b_q08",
+      "question_text": "Design a system to integrate a large-scale multimodal model with a production environment. How would you handle scalability, deployment, and maintenance?",
+      "question": "Design a system to integrate a large-scale multimodal model with a production environment. How would you handle scalability, deployment, and maintenance?",
+      "type": "system_design",
+      "difficulty": "hard",
+      "focus_area": "mixed",
+      "hint": [
+        "Consider one or more of the tools mentioned in the JD",
+        "Think about scalability, deployment, and maintenance",
+        "Explain one tradeoff clearly"
+      ],
+      "hints": [
+        "Consider one or more of the tools mentioned in the JD",
+        "Think about scalability, deployment, and maintenance",
+        "Explain one tradeoff clearly"
+      ],
+      "rationale": "Tests system design skills and scalability analysis"
+    },
+    {
+      "question_id": "combo_01_llama31_8b_q09",
+      "question_text": "Can you explain the concept of core-set active learning? How would you implement it in your own project, and what are the tradeoffs?",
+      "question": "Can you explain the concept of core-set active learning? How would you implement it in your own project, and what are the tradeoffs?",
+      "type": "technical",
+      "difficulty": "hard",
+      "focus_area": "technical",
+      "hint": [
+        "Reference Active Learning for Multimodal Models project",
+        "Mention key concepts and techniques",
+        "Explain implementation and tradeoffs"
+      ],
+      "hints": [
+        "Reference Active Learning for Multimodal Models project",
+        "Mention key concepts and techniques",
+        "Explain implementation and tradeoffs"
+      ],
+      "rationale": "Tests knowledge and implementation skills in a specific area"
+    },
+    {
+      "question_id": "combo_01_llama31_8b_q10",
+      "question_text": "Imagine you are working on a project to develop a real-time communication system using Arduino and Python. How would you approach the design and implementation, and what are the potential challenges?",
+      "question": "Imagine you are working on a project to develop a real-time communication system using Arduino and Python. How would you approach the design and implementation, and what are the potential challenges?",
+      "type": "system_design",
+      "difficulty": "hard",
+      "focus_area": "mixed",
+      "hint": [
+        "Consider the tools and technologies mentioned",
+        "Mention one or more specific challenges or tradeoffs",
+        "Explain how you would address them"
+      ],
+      "hints": [
+        "Consider the tools and technologies mentioned",
+        "Mention one or more specific challenges or tradeoffs",
+        "Explain how you would address them"
+      ],
+      "rationale": "Tests system design and implementation skills"
+    }
+  ]
+}

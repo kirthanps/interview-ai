@@ -1,6 +1,7 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
+import logging
 import os
 import time
 from dataclasses import dataclass
@@ -8,12 +9,14 @@ from typing import Any
 
 import requests
 
+logger = logging.getLogger(__name__)
+
 
 @dataclass(frozen=True)
 class ProviderConfig:
     name: str
     base_url: str
-    api_key_env: str
+    api_key_env: str = ""
 
 
 @dataclass(frozen=True)
@@ -24,6 +27,8 @@ class ModelConfig:
 
 
 class OpenAICompatibleClient:
+    """HTTP client for OpenAI-compatible endpoints with request pacing and retries."""
+
     def __init__(
         self,
         providers: dict[str, ProviderConfig],
@@ -41,9 +46,11 @@ class OpenAICompatibleClient:
         self.max_tokens = max_tokens
 
     def _endpoint_for(self, provider: ProviderConfig) -> str:
+        """Get the chat completions endpoint URL."""
         return provider.base_url.rstrip("/") + "/chat/completions"
 
     def _api_key_for(self, provider: ProviderConfig) -> str:
+        """Get API key for the given provider."""
         key = os.getenv(provider.api_key_env, "").strip()
         if not key:
             raise RuntimeError(
@@ -59,6 +66,7 @@ class OpenAICompatibleClient:
         max_tokens: int | None = None,
         system_prompt: str = "Return strict JSON only.",
     ) -> str:
+        """Get text completion with retry and rate limiting."""
         provider = self.providers[model.provider]
         api_key = self._api_key_for(provider)
 
@@ -81,15 +89,39 @@ class OpenAICompatibleClient:
         for attempt in range(1, self.max_retries + 1):
             try:
                 response = requests.post(
-                    endpoint, headers=headers, json=payload, timeout=120)
+                    endpoint, headers=headers, json=payload, timeout=120
+                )
+
                 if response.status_code == 429:
-                    raise RuntimeError("rate_limited")
+                    retry_after = response.headers.get("retry-after", "30")
+                    logger.warning(
+                        f"Rate limited (429) on attempt {attempt}/{self.max_retries}. "
+                        f"Retry-After: {retry_after}s"
+                    )
+                    wait_time = (
+                        float(retry_after)
+                        if retry_after.replace(".", "").isdigit()
+                        else 30.0
+                    )
+                    time.sleep(min(wait_time * 1.5, 60.0))
+                    continue
+
                 response.raise_for_status()
                 body = response.json()
                 content = body["choices"][0]["message"]["content"]
                 time.sleep(self.request_delay_seconds)
                 return str(content)
-            except Exception:
+            except requests.exceptions.RequestException as e:
+                logger.warning(
+                    f"Request error on attempt {attempt}/{self.max_retries}: {e}"
+                )
+                if attempt == self.max_retries:
+                    raise
+                time.sleep(self.backoff_base_seconds * (2 ** (attempt - 1)))
+            except Exception as e:
+                logger.warning(
+                    f"Parsing error on attempt {attempt}/{self.max_retries}: {e}"
+                )
                 if attempt == self.max_retries:
                     raise
                 time.sleep(self.backoff_base_seconds * (2 ** (attempt - 1)))
@@ -97,4 +129,5 @@ class OpenAICompatibleClient:
         raise RuntimeError("Failed to obtain model completion after retries")
 
     def completion_json(self, model: ModelConfig, prompt: str) -> dict[str, Any]:
+        """Get JSON completion."""
         return json.loads(self.completion_text(model, prompt))
