@@ -1,0 +1,51 @@
+experiment:
+  name: interviewai_model_comparison
+  difficulty: hard
+  focus_area: mixed
+  num_questions: 10
+  random_seed: 42
+  request_delay_seconds: 1.5
+  retry:
+    max_retries: 4
+    backoff_base_seconds: 2.0
+
+models_under_evaluation:
+  - id: llama-3.3-70b-versatile
+    alias: llama33
+    provider: groq
+  - id: llama-3.1-8b-instant
+    alias: llama31_8b
+    provider: groq
+  - id: qwen/qwen3-32b
+    alias: qwen32b
+    provider: groq
+
+judge_model:
+  id: openai/gpt-oss-120b
+  alias: judge_gpt_oss_120b
+  provider: openai
+
+providers:
+  groq:
+    base_url: https://api.groq.com/openai/v1
+    api_key_env: GROQ_API_KEY
+  openai:
+    base_url: https://api.openai.com/v1
+    api_key_env: OPENAI_API_KEY
+
+scoring_weights:
+  question_phase:
+    qms_weight: 0.6
+    jqs_weight: 0.4
+  scoring_phase:
+    sms_weight: 0.6
+    jss_weight: 0.4
+  final:
+    qps_average_weight: 0.5
+    sps_average_weight: 0.5
+
+paths:
+  prompts_dir: prompts
+  data_dir: data
+  runs_dir: runs
+  templates_dir: templates

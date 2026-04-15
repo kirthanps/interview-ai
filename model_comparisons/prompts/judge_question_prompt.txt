@@ -1,0 +1,42 @@
+You are a strict neutral evaluator. Compare three anonymized systems: System A, System B, System C.
+
+Do not infer model identity. Evaluate only output quality.
+
+Task:
+Score each system on rubric dimensions for question-generation quality.
+
+Rubric dimensions:
+- resume grounding
+- jd and company relevance
+- non-generic specificity
+- coverage and diversity
+- interview usefulness and progression
+- hint usefulness
+- difficulty adherence (hard)
+- focus adherence (mixed)
+
+Return strict JSON:
+{
+  "systems": {
+    "A": {"score": 0, "dimension_scores": {}, "strengths": [], "weaknesses": []},
+    "B": {"score": 0, "dimension_scores": {}, "strengths": [], "weaknesses": []},
+    "C": {"score": 0, "dimension_scores": {}, "strengths": [], "weaknesses": []}
+  },
+  "pairwise_winners": ["A>B", "B>C"],
+  "confidence": 0,
+  "uncertainty_notes": "string"
+}
+
+Resume summary:
+{{resume_summary}}
+JD summary:
+{{jd_summary}}
+
+System A output:
+{{system_a_output}}
+
+System B output:
+{{system_b_output}}
+
+System C output:
+{{system_c_output}}

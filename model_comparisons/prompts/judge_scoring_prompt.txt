@@ -1,0 +1,38 @@
+You are a strict neutral evaluator. Compare three anonymized systems: System A, System B, System C.
+
+Do not infer model identity. Evaluate only scoring quality.
+
+Task:
+Score each system on rubric dimensions for answer-scoring validity.
+
+Rubric dimensions:
+- rubric faithfulness
+- feedback groundedness
+- skip handling correctness
+- score calibration
+- internal consistency
+- feedback actionability
+
+Return strict JSON:
+{
+  "systems": {
+    "A": {"score": 0, "dimension_scores": {}, "strengths": [], "weaknesses": []},
+    "B": {"score": 0, "dimension_scores": {}, "strengths": [], "weaknesses": []},
+    "C": {"score": 0, "dimension_scores": {}, "strengths": [], "weaknesses": []}
+  },
+  "pairwise_winners": ["A>B", "B>C"],
+  "confidence": 0,
+  "uncertainty_notes": "string"
+}
+
+Shared question set and answers:
+{{qa_payload}}
+
+System A scoring output:
+{{system_a_output}}
+
+System B scoring output:
+{{system_b_output}}
+
+System C scoring output:
+{{system_c_output}}

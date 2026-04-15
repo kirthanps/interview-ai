@@ -1,0 +1,33 @@
+question_phase:
+  dimensions:
+    - name: resume_grounding
+      weight: 0.16
+    - name: jd_company_relevance
+      weight: 0.16
+    - name: non_generic_specificity
+      weight: 0.14
+    - name: coverage_diversity
+      weight: 0.14
+    - name: interview_usefulness_progression
+      weight: 0.14
+    - name: hint_usefulness
+      weight: 0.10
+    - name: difficulty_adherence_hard
+      weight: 0.08
+    - name: focus_adherence_mixed
+      weight: 0.08
+
+scoring_phase:
+  dimensions:
+    - name: rubric_faithfulness
+      weight: 0.20
+    - name: feedback_groundedness
+      weight: 0.20
+    - name: skip_handling_correctness
+      weight: 0.15
+    - name: score_calibration
+      weight: 0.15
+    - name: internal_consistency
+      weight: 0.15
+    - name: feedback_actionability
+      weight: 0.15
