@@ -93,6 +93,11 @@ def test_parse_jd_with_llm_short_jd_raises() -> None:
         parse_jd_with_llm(jd_text="short jd", llm=DummyLLM("{}"))
 
 
+@pytest.fixture(autouse=True)
+def stub_query_embedding(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("pipeline.jd_parser.embed_query_text", lambda _: [0.1, 0.2])
+
+
 def test_match_to_company_profile_text_doc_format() -> None:
     profile_doc = (
         "Company: Zepto\n"
@@ -239,3 +244,20 @@ def test_generate_questions_success() -> None:
 def test_get_question_distribution_contains_target_count() -> None:
     result = get_question_distribution(8, "mixed", "medium")
     assert "Target count: 8" in result
+
+
+def test_generate_questions_rejects_duplicate_and_malformed_items() -> None:
+    llm = DummyLLM('{"questions": [{"question": "Explain retries."}, '
+                   '{"question": "  explain retries.  "}, {"question": null}]}')
+
+    with pytest.raises(ValueError, match="Expected 2 distinct questions, received 1"):
+        generate_questions(
+            parsed_jd={"role": "Backend Engineer", "company": "Northstar Parcel Labs"},
+            company_profile={"provided_context": "Duplicate delivery webhooks"},
+            resume_context=[],
+            preferences={"num_questions": 2, "difficulty": "medium", "focus_area": "mixed"},
+            chroma_client=FakeChromaClient({}),
+            llm=llm,
+        )
+
+    assert "Duplicate delivery webhooks" in llm.last_prompt
