@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import logging
+import re
+import unicodedata
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from uuid import uuid4
 
 from fpdf import FPDF
 
@@ -18,11 +21,15 @@ class InterviewReportPDF(FPDF):
     """FPDF subclass with simple branded header/footer."""
 
     def header(self) -> None:  # pragma: no cover
-        self.set_font("Helvetica", "B", 14)
-        self.cell(0, 8, "InterviewAI Assessment Report", ln=True, align="C")
+        self.set_text_color(15, 76, 129)
+        self.set_font("Helvetica", "B", 16)
+        self.cell(0, 8, "InterviewAI Assessment Report", new_x="LMARGIN", new_y="NEXT", align="C")
         self.set_font("Helvetica", "", 9)
-        self.cell(0, 5, "AI-Powered Mock Interview Coach", ln=True, align="C")
-        self.ln(2)
+        self.cell(0, 5, "AI-Powered Mock Interview Coach", new_x="LMARGIN", new_y="NEXT", align="C")
+        self.set_draw_color(205, 220, 233)
+        self.line(self.l_margin, self.get_y() + 1, self.w - self.r_margin, self.get_y() + 1)
+        self.ln(5)
+        self.set_text_color(30, 41, 59)
 
     def footer(self) -> None:  # pragma: no cover
         self.set_y(-12)
@@ -32,14 +39,17 @@ class InterviewReportPDF(FPDF):
 
 def _safe_text(value: Any) -> str:
     text = "" if value is None else str(value)
-    return " ".join(text.replace("\r", " ").replace("\n", " ").split()).strip()
+    text = unicodedata.normalize("NFKC", text).translate(str.maketrans({
+        "‘": "'", "’": "'", "“": '"', "”": '"', "–": "-", "—": "-", "•": "-", "…": "...",
+    }))
+    return " ".join(text.split()).encode("latin-1", errors="replace").decode("latin-1")
 
 
 def _render_list_section(pdf: FPDF, title: str, items: List[str]) -> None:
     full_width = pdf.w - pdf.l_margin - pdf.r_margin
     pdf.set_x(pdf.l_margin)
     pdf.set_font("Helvetica", "B", 12)
-    pdf.cell(0, 8, title, ln=True)
+    pdf.cell(0, 8, title, new_x="LMARGIN", new_y="NEXT")
     pdf.set_font("Helvetica", "", 10)
 
     if not items:
@@ -75,53 +85,48 @@ def generate_pdf_report(
         full_width = pdf.w - pdf.l_margin - pdf.r_margin
 
         pdf.set_font("Helvetica", "B", 12)
-        pdf.cell(0, 8, "Session Details", ln=True)
+        pdf.cell(0, 8, "Session Details", new_x="LMARGIN", new_y="NEXT")
         pdf.set_font("Helvetica", "", 10)
 
+        details = [f"Role: {role_text}", f"Company: {company_text}"]
         if candidate_name and candidate_name.strip():
-            pdf.cell(
-                0,
-                6,
-                f"Candidate: {_safe_text(candidate_name)}",
-                ln=True,
-            )
-
-        pdf.cell(0, 6, f"Role: {role_text}", ln=True)
-        pdf.cell(0, 6, f"Company: {company_text}", ln=True)
+            details.insert(0, f"Candidate: {_safe_text(candidate_name)}")
+        for detail in details:
+            pdf.multi_cell(full_width, 6, detail, new_x="LMARGIN", new_y="NEXT")
         pdf.cell(
             0,
             6,
             f"Date: {generated_at.strftime('%B %d, %Y at %H:%M')}",
-            ln=True,
+            new_x="LMARGIN", new_y="NEXT",
         )
-        pdf.cell(0, 6, f"Total Questions: {len(qa_pairs)}", ln=True)
+        pdf.cell(0, 6, f"Total Questions: {len(qa_pairs)}", new_x="LMARGIN", new_y="NEXT")
         pdf.ln(3)
 
         pdf.set_font("Helvetica", "B", 12)
-        pdf.cell(0, 8, "Performance Scores", ln=True)
+        pdf.cell(0, 8, "Performance Scores", new_x="LMARGIN", new_y="NEXT")
         pdf.set_font("Helvetica", "", 10)
         pdf.cell(
-            0, 6, f"Overall Score: {scores.overall_score:.1f}/10", ln=True)
+            0, 6, f"Overall Score: {scores.overall_score:.1f}/10", new_x="LMARGIN", new_y="NEXT")
         pdf.cell(
             0,
             6,
             f"Technical Depth: {scores.technical_depth_score:.1f}/10",
-            ln=True,
+            new_x="LMARGIN", new_y="NEXT",
         )
         pdf.cell(
             0,
             6,
             f"Communication: {scores.communication_score:.1f}/10",
-            ln=True,
+            new_x="LMARGIN", new_y="NEXT",
         )
         pdf.cell(
             0,
             6,
             (
                 f"Role Readiness: {scores.role_readiness_percent:.0f}% "
-                f"({scores.role_readiness_label})"
+                f"({_safe_text(scores.role_readiness_label)})"
             ),
-            ln=True,
+            new_x="LMARGIN", new_y="NEXT",
         )
         pdf.ln(3)
 
@@ -131,7 +136,7 @@ def generate_pdf_report(
                              scores.recommended_resources)
 
         pdf.set_font("Helvetica", "B", 12)
-        pdf.cell(0, 8, "Per-Question Breakdown", ln=True)
+        pdf.cell(0, 8, "Per-Question Breakdown", new_x="LMARGIN", new_y="NEXT")
 
         for idx, answer_score in enumerate(scores.per_answer_scores, start=1):
             pdf.set_font("Helvetica", "B", 10)
@@ -163,11 +168,11 @@ def generate_pdf_report(
             pdf.ln(1)
 
         timestamp_tag = generated_at.strftime("%Y%m%d_%H%M%S")
-        role_slug = "_".join(role_text.split()) or "UnknownRole"
+        role_slug = re.sub(r"[^A-Za-z0-9_-]+", "_", role_text).strip("_")[:48] or "UnknownRole"
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
         report_file = output_path / \
-            f"InterviewAI_Report_{role_slug}_{timestamp_tag}.pdf"
+            f"InterviewAI_Report_{role_slug}_{timestamp_tag}_{uuid4().hex[:8]}.pdf"
 
         pdf.output(str(report_file))
         logger.info("PDF report generated at %s", report_file)

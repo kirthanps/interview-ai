@@ -2,17 +2,11 @@
 
 from __future__ import annotations
 
-import logging
-import os
 import uuid
 
 import streamlit as st
 from dotenv import load_dotenv
 
-from pipeline.resume_processor import initialize_chroma_db, initialize_datasets_in_chromadb
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -76,48 +70,6 @@ def initialize_session_state() -> None:
             st.session_state[key] = value
 
 
-@st.cache_resource
-def get_chroma_client():
-    """Initialize and cache ChromaDB client."""
-    return initialize_chroma_db()
-
-
-@st.cache_resource
-def warmup_datasets() -> None:
-    """Load shared datasets into Chroma once per process."""
-    try:
-        client = get_chroma_client()
-        initialize_datasets_in_chromadb(client)
-        logger.info("Datasets loaded into ChromaDB")
-    except Exception as exc:  # pragma: no cover
-        logger.warning("Dataset warmup skipped: %s", exc)
-
-
-def _reset_for_new_session() -> None:
-    keys_to_reset = [
-        "page",
-        "resume_file",
-        "resume_text",
-        "jd_text",
-        "parsed_jd",
-        "company_profile",
-        "resume_insights",
-        "questions",
-        "interview_session",
-        "scores",
-        "pdf_path",
-    ]
-    for key in keys_to_reset:
-        if key == "page":
-            st.session_state[key] = "landing"
-        elif key in {"resume_text", "jd_text"}:
-            st.session_state[key] = ""
-        else:
-            st.session_state[key] = None
-
-    st.session_state["session_id"] = str(uuid.uuid4())
-
-
 def _route_current_page() -> None:
     page = st.session_state["page"]
     if page == "landing":
@@ -148,7 +100,6 @@ def _route_current_page() -> None:
 def _render_sidebar() -> None:
     with st.sidebar:
         st.title("InterviewAI")
-        st.caption(f"Session: {st.session_state['session_id'][-8:]}")
 
         page_labels = {
             "Landing": "landing",
@@ -162,24 +113,23 @@ def _render_sidebar() -> None:
             if st.button(label, use_container_width=True, key=f"nav_{page_name}"):
                 if page_name in {"preview", "interview", "results"} and not st.session_state.get("questions"):
                     st.warning("Complete setup before opening this page.")
+                elif page_name == "results" and not (
+                    (session := st.session_state.get("interview_session")) and session.is_completed()
+                ):
+                    st.warning("Finish the interview to view results.")
                 else:
                     st.session_state["page"] = page_name
                     st.rerun()
 
         st.divider()
         if st.button("Restart Session", use_container_width=True):
-            _reset_for_new_session()
+            st.session_state.clear()
             st.rerun()
 
 
 def main() -> None:
-    if not os.getenv("GROQ_API_KEY"):
-        st.error("GROQ_API_KEY not found in .env file.")
-        st.stop()
-
     _render_styles()
     initialize_session_state()
-    warmup_datasets()
     _render_sidebar()
     _route_current_page()
 

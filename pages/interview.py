@@ -22,7 +22,7 @@ def _ensure_session_initialized() -> None:
         questions=st.session_state.get("questions", []),
         role=(st.session_state.get("parsed_jd")
               or {}).get("role", "Unknown Role"),
-        company=(st.session_state.get("company_profile")
+        company=(st.session_state.get("parsed_jd")
                  or {}).get("company", "Unknown Company"),
         resume_insights=st.session_state.get("resume_insights") or {},
         candidate_name=st.session_state.get("candidate_name") or None,
