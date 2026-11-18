@@ -23,23 +23,23 @@ professional PDF report.
 
     with col1:
         st.markdown("""
-        <div class="feature-card">
+        <div class="subtle-card">
         <h4>📄 Resume-Aware</h4>
-        Questions reference YOUR experience, not generic Q&A
+        Questions draw on the experience in your resume
         </div>
         """, unsafe_allow_html=True)
 
     with col2:
         st.markdown("""
-        <div class="feature-card">
+        <div class="subtle-card">
         <h4>🏢 Company Context</h4>
-        Different questions for Zepto vs Infosys vs Accenture
+        Practice for the role and company you are targeting
         </div>
         """, unsafe_allow_html=True)
 
     with col3:
         st.markdown("""
-        <div class="feature-card">
+        <div class="subtle-card">
         <h4>📊 Scored Feedback</h4>
         Specific, actionable advice with resources to improve
         </div>
@@ -63,17 +63,17 @@ professional PDF report.
     with st.expander("❓ How does this work?"):
         st.markdown("""
         1. **Upload Resume**: PDF of your resume
-        2. **Paste Job Description**: The role you're interview for
+        2. **Paste Job Description**: The role you are interviewing for
         3. **Answer Questions**: Real-time AI-tailored interview (5-10 questions)
         4. **Get Report**: Scored feedback + PDF download
         
         **Behind the scenes**: 
-        - Your resume is processed locally (RAG pipeline)
+        - PDF extraction and vector search run locally
         - Questions are generated using AI specifically for your background
         - Answers are scored using strict rubric
-        - All data is cleared after your session
+        - Groq receives interview context and answers to generate feedback
         """)
 
     st.markdown("---")
     st.caption(
-        "Powered by InterviewAI • All data processed locally and cleared after session")
+        "For portfolio demos, use a fictional resume and job description.")

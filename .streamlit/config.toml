@@ -7,3 +7,6 @@ runOnSave = false
 [runner]
 # Keep startup cleaner in this project where large ML libs use lazy imports.
 fastReruns = true
+
+[client]
+showSidebarNavigation = false
