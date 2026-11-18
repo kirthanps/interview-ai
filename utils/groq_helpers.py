@@ -5,10 +5,9 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
-from typing import List, TYPE_CHECKING
+from typing import List
 
-if TYPE_CHECKING:
-    from langchain_groq import ChatGroq
+from langchain_groq import ChatGroq
 
 logger = logging.getLogger(__name__)
 
@@ -84,8 +83,6 @@ def is_model_decommission_error(exc: Exception) -> bool:
 
 def build_groq_llm(model_name: str, temperature: float) -> ChatGroq:
     """Create a GROQ chat model for a specific model name."""
-    from langchain_groq import ChatGroq
-
     api_key = get_groq_api_key()
     if not api_key:
         raise ValueError(

@@ -31,7 +31,7 @@ def _compute_scores_if_needed() -> None:
                 qa_pairs=qa_pairs,
                 role=(st.session_state.get("parsed_jd")
                       or {}).get("role", "Unknown Role"),
-                company=(st.session_state.get("parsed_jd")
+                company=(st.session_state.get("company_profile")
                          or {}).get("company", "Unknown Company"),
                 resume_insights=st.session_state.get("resume_insights") or {},
                 jd_insights=st.session_state.get("parsed_jd") or {},
@@ -46,13 +46,12 @@ def _compute_scores_if_needed() -> None:
                 ],
             )
         st.session_state["scores"] = scores
-    except Exception:
-        st.error("Error scoring interview. Check your Groq configuration and network, then retry.")
+    except Exception as exc:
+        st.error(f"Error scoring interview: {exc}")
 
 
 def _generate_pdf_if_needed() -> None:
-    report = st.session_state.get("pdf_path")
-    if report and Path(report).is_file():
+    if st.session_state.get("pdf_path"):
         return
 
     session = st.session_state.get("interview_session")
@@ -67,9 +66,9 @@ def _generate_pdf_if_needed() -> None:
             scores=scores,
             role=(st.session_state.get("parsed_jd")
                   or {}).get("role", "Unknown Role"),
-            company=(st.session_state.get("parsed_jd")
+            company=(st.session_state.get("company_profile")
                      or {}).get("company", "Unknown Company"),
-            candidate_name=getattr(session, "candidate_name", None),
+            candidate_name=st.session_state.get("candidate_name") or None,
         )
         st.session_state["pdf_path"] = pdf_path
     except Exception as exc:
@@ -79,21 +78,9 @@ def _generate_pdf_if_needed() -> None:
 def show_results() -> None:
     st.title("Interview Results")
 
-    session = st.session_state.get("interview_session")
-    if session is None or not session.is_completed():
-        st.info("Finish the interview to view results.")
-        return
-    if not session.get_total_answered():
-        st.info("Answer at least one question to receive feedback.")
-        if st.button("Retry Interview"):
-            st.session_state.update(interview_session=None, page="interview")
-            st.rerun()
-        return
-
     _compute_scores_if_needed()
     scores = st.session_state.get("scores")
     if scores is None:
-        st.button("Retry Scoring")
         return
 
     c1, c2, c3, c4 = st.columns(4)
@@ -143,9 +130,6 @@ def show_results() -> None:
                 use_container_width=True,
             )
 
-    else:
-        st.button("Retry PDF Generation")
-
     b1, b2 = st.columns(2)
     with b1:
         if st.button("Retry Interview", use_container_width=True):
@@ -156,5 +140,9 @@ def show_results() -> None:
             st.rerun()
     with b2:
         if st.button("New Session", use_container_width=True):
-            st.session_state.clear()
+            st.session_state["page"] = "landing"
+            st.session_state["questions"] = None
+            st.session_state["interview_session"] = None
+            st.session_state["scores"] = None
+            st.session_state["pdf_path"] = None
             st.rerun()

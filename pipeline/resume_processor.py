@@ -13,6 +13,7 @@ from typing import Any, List, Optional, Tuple
 import chromadb
 import numpy as np
 import pandas as pd
+import PyPDF2
 from langchain_core.documents import Document
 from langchain_core.prompts import PromptTemplate
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -27,7 +28,6 @@ from utils.constants import (
     MODEL_CACHE_DIR,
 )
 from utils.embedding_provider import get_embedding_model
-from utils.pdf_input import extract_text_from_pdf as extract_text_from_pdf
 from utils.groq_helpers import (
     build_groq_llm,
     get_groq_model_candidates,
@@ -35,8 +35,7 @@ from utils.groq_helpers import (
 )
 
 logger = logging.getLogger(__name__)
-CHROMA_PATH = Path(os.getenv("INTERVIEWAI_CHROMA_DIR") or CHROMA_STORE_DIR)
-INGESTION_STATE_FILE = CHROMA_PATH / "dataset_ingestion_state.json"
+INGESTION_STATE_FILE = Path(CHROMA_STORE_DIR) / "dataset_ingestion_state.json"
 GROQ_RESUME_INSIGHTS_TEMPERATURE = 0.3
 
 
@@ -127,6 +126,50 @@ def _sanitize_collection_name(name: str) -> str:
     return cleaned[:63]
 
 
+def extract_text_from_pdf(file_path: str) -> str:
+    """Extract raw text from a PDF file.
+
+    Args:
+        file_path: Path to PDF file.
+
+    Returns:
+        Concatenated text from all pages.
+
+    Raises:
+        FileNotFoundError: If PDF path does not exist.
+        ValueError: If no extractable text is found.
+    """
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"PDF file not found: {file_path}")
+
+    try:
+        text_parts: List[str] = []
+        with path.open("rb") as pdf_file:
+            pdf_reader = PyPDF2.PdfReader(pdf_file)
+            num_pages = len(pdf_reader.pages)
+            logger.info("Extracting text from PDF with %s pages", num_pages)
+
+            for page_number, page in enumerate(pdf_reader.pages, start=1):
+                page_text = page.extract_text() or ""
+                if page_text.strip():
+                    text_parts.append(page_text)
+                logger.debug("Processed page %s/%s", page_number, num_pages)
+
+        text = "\n".join(text_parts).strip()
+        if not text:
+            raise ValueError(
+                "No text found in PDF. The file may be image-based and require OCR."
+            )
+
+        logger.info("Successfully extracted %s characters from PDF", len(text))
+        return text
+
+    except Exception as exc:
+        logger.error("Error extracting text from PDF %s: %s", file_path, exc)
+        raise
+
+
 def chunk_text(
     raw_text: str, chunk_size: int = CHUNK_SIZE, chunk_overlap: int = CHUNK_OVERLAP
 ) -> List[str]:
@@ -193,9 +236,9 @@ def generate_embeddings(chunks: List[str]) -> Tuple[np.ndarray, Any]:
 
 def initialize_chroma_db() -> chromadb.ClientAPI:
     """Initialize ChromaDB with persistent local storage."""
-    CHROMA_PATH.mkdir(parents=True, exist_ok=True)
-    client = chromadb.PersistentClient(path=str(CHROMA_PATH))
-    logger.info("ChromaDB initialized at %s", CHROMA_PATH)
+    os.makedirs(CHROMA_STORE_DIR, exist_ok=True)
+    client = chromadb.PersistentClient(path=CHROMA_STORE_DIR)
+    logger.info("ChromaDB initialized at %s", CHROMA_STORE_DIR)
     return client
 
 

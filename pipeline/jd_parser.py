@@ -236,9 +236,6 @@ def match_to_company_profile(
         matched_doc = str(documents[0][0])
         metadata = ((results or {}).get("metadatas") or [[{}]])[0][0] or {}
 
-        if metadata.get("company") and str(metadata["company"]).strip().casefold() != company.casefold():
-            return fallback_profile
-
         try:
             parsed_doc = json.loads(matched_doc)
             if isinstance(parsed_doc, dict):

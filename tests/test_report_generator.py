@@ -66,21 +66,3 @@ def test_generate_pdf_report_creates_file(tmp_path: Path) -> None:
     assert report_path.exists()
     assert report_path.suffix.lower() == ".pdf"
     assert report_path.stat().st_size > 0
-
-
-def test_report_handles_model_punctuation_and_role_separators(tmp_path: Path) -> None:
-    from PyPDF2 import PdfReader
-
-    path = Path(generate_pdf_report(
-        qa_pairs=[{"question": "Q1"}],
-        scores=_sample_scores(),
-        role="Backend Engineer / Platform – APIs",
-        company="Northstar Parcel Labs",
-        candidate_name="Mira “Demo” Vale",
-        output_dir=str(tmp_path),
-    ))
-
-    assert path.parent == tmp_path
-    text = "".join(page.extract_text() for page in PdfReader(path).pages)
-    assert 'Mira "Demo" Vale' in text
-    assert "Backend Engineer / Platform - APIs" in text

@@ -176,14 +176,12 @@ def generate_questions(
     try:
         prompt_text = prompt.format(
             role=parsed_jd.get("role", "Unknown Role"),
-            company=parsed_jd.get("company", "Unknown Company"),
+            company=company_profile.get(
+                "company", parsed_jd.get("company", "Unknown Company")),
             skills=", ".join(parsed_jd.get("skills", [])),
             experience_level=parsed_jd.get("experience_level", "Unknown"),
             resume_context=resume_context_str,
-            company_notes="\n".join(filter(None, [
-                company_profile.get("hiring_notes", ""),
-                company_profile.get("provided_context", ""),
-            ])),
+            company_notes=company_profile.get("hiring_notes", ""),
             few_shot_examples=few_shot_str,
             num_questions=validated_preferences["num_questions"],
             focus_area=validated_preferences["focus_area"],
@@ -235,18 +233,13 @@ def generate_questions(
                 "Question generation response must be a JSON list")
 
         questions: List[Question] = []
-        seen_questions = set()
         for item in payload:
             if not isinstance(item, dict):
                 continue
 
-            raw_question = item.get("question")
-            if not isinstance(raw_question, str):
+            question_text = str(item.get("question", "")).strip()
+            if not question_text:
                 continue
-            question_text = " ".join(raw_question.split())
-            if not question_text or question_text.casefold() in seen_questions:
-                continue
-            seen_questions.add(question_text.casefold())
 
             q_type = str(item.get("type", "technical")).strip().lower()
             if q_type not in ALLOWED_TYPES:
@@ -292,10 +285,25 @@ def generate_questions(
             raise ValueError("No valid questions returned by LLM")
 
         expected = validated_preferences["num_questions"]
-        if len(questions) < expected:
-            raise ValueError(f"Expected {expected} distinct questions, received {len(questions)}")
+        if len(questions) != expected:
+            logger.warning("Expected %s questions, received %s",
+                           expected, len(questions))
 
-        return questions[:expected]
+            if len(questions) > expected:
+                questions = questions[:expected]
+            else:
+                while len(questions) < expected and questions:
+                    template = questions[len(questions) % len(questions)]
+                    questions.append(
+                        Question(
+                            question=f"{template.question} (follow-up)",
+                            type=template.type,
+                            hint=list(template.hint),
+                            difficulty=template.difficulty,
+                        )
+                    )
+
+        return questions
 
     except json.JSONDecodeError as exc:
         logger.error(

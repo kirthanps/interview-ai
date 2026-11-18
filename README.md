@@ -1,74 +1,175 @@
 # InterviewAI
 
-InterviewAI turns a text-based resume and a target job description into a personalized mock interview. Candidates practice written answers, review rubric-based feedback, and download a PDF to guide their next practice session.
+InterviewAI is an AI-powered mock interview coach.
 
-## Demo
+You upload your resume, paste a target job description, answer interview questions, and get a scored feedback report with a downloadable PDF.
 
-![InterviewAI introduction](docs/screenshots/01-introduction.png)
+The app is designed for an Indian job-market context and uses:
+- resume-aware questioning
+- company/JD-aware context
+- structured LLM outputs for preview, questions, and scoring
 
-See the [resume and job input screen](docs/screenshots/02-resume-and-job-input.png) and a [PDF report rendered from test scores](docs/screenshots/03-sample-report.png).
+## What This Project Does
 
-Use the [90-second walkthrough](docs/demo/README.md), [fictional resume](docs/demo/mira-vale-resume.pdf), and [fictional job brief](docs/demo/job-description.md).
+In simple terms, the app does this:
+1. Reads your resume PDF.
+2. Understands the job description you are targeting.
+3. Generates tailored interview questions.
+4. Runs a mock interview flow.
+5. Scores your answers and gives practical feedback.
 
-## Features
+## User Story Workflow (Simple End-to-End)
 
-- Resume PDF extraction, job description analysis, and optional company context
-- Five, eight, or ten questions with selectable difficulty and interview focus
-- Profile preview, generated question list, and a guided interview with optional hints
-- Per-question relevance, depth, and clarity scores, improvement suggestions, and a downloadable PDF
+1. Open app and start a session.
+2. Upload resume PDF and paste JD.
+3. Pick preferences: difficulty, question count, and focus area.
+4. App analyzes resume and JD, then generates questions.
+5. Preview page shows what the system understood.
+6. You answer questions one by one.
+7. Results page shows per-question and overall scores.
+8. You download the final PDF report.
 
-## Architecture
+## How Data Flows Through The System
 
-```mermaid
-flowchart LR
-    A[Resume PDF] --> B[Extract text and embed chunks]
-    C[Job description and company notes] --> D[Parse job requirements]
-    B --> E[ChromaDB retrieval]
-    F[Synthetic job and Q&A examples] --> E
-    D --> G[Groq question generation]
-    E --> G
-    G --> H[Streamlit interview]
-    H --> I[Groq rubric scoring]
-    I --> J[Results and PDF report]
+### 1) Resume Ingestion
+- Input: resume PDF.
+- Processing: PDF text extraction, chunking, embedding.
+- Storage: session-specific ChromaDB collection (resume vectors).
+
+### 2) JD Ingestion
+- Input: pasted JD text.
+- Processing: JD text embedding.
+- Storage: session-specific ChromaDB collection (JD vectors).
+
+### 3) Shared Dataset Warmup
+At startup, shared datasets are loaded into persistent ChromaDB collections:
+- interview Q&A dataset from data/interview_qa.csv
+- Indian JD dataset from data/indian_jd_dataset.json
+
+### 4) LLM Calls and What Is Sent
+
+Resume insights call:
+- Sent to LLM: extracted resume text.
+- Returned: structured resume insights JSON.
+
+JD parsing call:
+- Sent to LLM: user JD text + top-k matched JD examples from vector DB.
+- Returned: structured JD JSON.
+
+Question generation call:
+- Sent to LLM:
+  - resume context (retrieved chunks)
+  - full resume text
+  - parsed JD JSON
+  - company profile context
+  - top-k few-shot interview examples from Q&A dataset
+  - user preferences (difficulty, focus, question count)
+- Returned: structured questions JSON with type, difficulty, hints, rationale.
+
+Scoring call:
+- Sent to LLM:
+  - full interview transcript
+  - resume insights JSON
+  - JD insights JSON
+  - generated questions JSON
+- Returned: structured scoring JSON (per-question scores, overall metrics, readiness, feedback, resources).
+
+### 5) What Is Stored Where
+
+Stored in ChromaDB:
+- session resume chunks/vectors
+- session JD vectors
+- shared interview Q&A vectors
+- shared Indian JD vectors
+
+Stored in session state:
+- raw resume text
+- raw JD text
+- parsed resume insights
+- parsed JD insights
+- generated questions
+- interview Q/A pairs
+- scoring output
+- report path
+
+## Project Structure
+
+- app.py: Streamlit entry point.
+- pages/: landing, setup, preview, interview, results pages.
+- pipeline/: core backend logic (RAG, parsing, generation, scoring).
+- prompts/: LLM prompt templates.
+- report/: PDF report generation.
+- data/: input datasets.
+- tests/: unit tests.
+
+## Setup and Run
+
+## Prerequisites
+
+- Python 3.11+ (current workspace is running 3.14).
+- A GROQ API key.
+
+## 1) Create and activate virtual environment
+
+Windows CMD:
+
+```bat
+python -m venv venv
+venv\Scripts\activate
 ```
 
-Streamlit manages the interface and interview state. PyPDF2 extracts resume text. Sentence Transformers encodes text for ChromaDB similarity search. LangChain connects prompt templates to Groq. Python validates the generated question list and scoring payload before the UI displays them. fpdf2 generates the report.
+PowerShell:
 
-## Local setup
-
-Use Python 3.12 for the standard install. Python 3.15 was tested for dependency resolution and could not install ChromaDB because its ONNX Runtime dependency had no compatible release in the tested package index.
-
-```bash
-python3.12 -m venv venv
-venv/bin/python -m pip install -r requirements.txt
-venv/bin/python data_processing/generate_synthetic_datasets.py
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
 ```
 
-On Windows, use `py -3.12 -m venv venv` and replace `venv/bin/python` with `venv\Scripts\python.exe`.
+## 2) Install dependencies
 
-The generator writes `data/interview_qa.csv` and `data/indian_jd_dataset.json`. Run it on a fresh checkout. It overwrites these paths if files already exist.
-
-Create an ignored `.env` file in the repository root and set `GROQ_API_KEY` to your Groq API key. You can optionally set `GROQ_MODEL` to a model available to your account. Start the app from the repository root.
-
-```bash
-venv/bin/python -m streamlit run app.py --server.address 127.0.0.1
+```bat
+pip install -r requirements.txt
 ```
 
-Open `http://127.0.0.1:8501`. The first interview may download the embedding model and index the reference datasets.
+## 3) Configure environment
 
-ChromaDB defaults to `chroma_store/`. If the repository is on a mounted drive that causes SQLite write errors, set `INTERVIEWAI_CHROMA_DIR` to a private directory on a local filesystem before launching.
+Create a .env file in project root with:
 
-## Tests
-
-```bash
-venv/bin/python -m pytest -q
+```env
+GROQ_API_KEY=your_groq_api_key_here
 ```
 
-The suite covers PDF extraction, retrieval contracts, question generation, interview state, rubric validation, and report generation. The [demo walkthrough](docs/demo/README.md) exercises the browser flow and requires a Groq key.
+## 4) Ensure datasets exist
 
-## Known limitations
+Required files:
+- data/interview_qa.csv
+- data/indian_jd_dataset.json
 
-- Scanned or encrypted PDFs require a readable, text-based export before upload.
-- Groq receives candidate text, job context, and interview answers. ChromaDB and generated reports remain on local disk after restarting a session. Use fictional data for demonstrations.
-- Reference examples are synthetic. Treat company context and AI scoring as practice guidance.
-- The PDF uses a Latin-1 font. Unsupported characters are replaced. Service availability, model changes, and rate limits can affect generation.
+If missing, generate them with:
+
+```bat
+python data_processing/generate_synthetic_datasets.py
+```
+
+## 5) Run the app
+
+```bat
+streamlit run app.py
+```
+
+## 6) Run tests
+
+```bat
+pytest -q
+```
+
+## Notes
+
+- The app caches embeddings and vector collections locally.
+- First run may take longer due to model and dataset warmup.
+- Some dependency deprecation warnings can appear on Python 3.14; tests still pass.
+
+## Documentation
+
+Detailed backend contract and rich JSON schemas are documented in:
+- ai_files/docs and plans/rich_insights_backend_spec.md

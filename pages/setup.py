@@ -2,22 +2,26 @@
 
 from __future__ import annotations
 
+import logging
 import tempfile
 from pathlib import Path
 
 import streamlit as st
 
-from utils.groq_helpers import get_groq_api_key
-from utils.pdf_input import extract_text_from_pdf
+from pipeline.jd_parser import match_to_company_profile, parse_jd_with_llm
+from pipeline.question_generator import generate_questions
+from pipeline.resume_processor import (
+    chunk_text,
+    extract_resume_insights_with_llm,
+    extract_text_from_pdf,
+    generate_embeddings,
+    initialize_chroma_db,
+    retrieve_resume_context,
+    store_jd_in_chroma,
+    store_resume_in_chroma,
+)
 
-
-@st.cache_resource(show_spinner=False)
-def _get_search_index():
-    from pipeline.resume_processor import initialize_chroma_db, initialize_datasets_in_chromadb
-
-    client = initialize_chroma_db()
-    initialize_datasets_in_chromadb(client)
-    return client
+logger = logging.getLogger(__name__)
 
 
 def _save_uploaded_pdf_temp(uploaded_file) -> Path:
@@ -29,7 +33,7 @@ def _save_uploaded_pdf_temp(uploaded_file) -> Path:
 
 def show_setup() -> None:
     st.title("Setup Interview")
-    st.caption("Upload a text-based PDF, paste the job description, and choose your interview preferences.")
+    st.caption("Upload resume, paste JD, and choose preferences.")
 
     col1, col2 = st.columns(2)
 
@@ -40,8 +44,6 @@ def show_setup() -> None:
             "Candidate name (optional)", value=st.session_state.get("candidate_name", ""))
         st.session_state["candidate_name"] = candidate_name
 
-        st.session_state["resume_text"] = ""
-        st.session_state["resume_file"] = None
         if uploaded_file is not None:
             temp_path = _save_uploaded_pdf_temp(uploaded_file)
             try:
@@ -50,27 +52,20 @@ def show_setup() -> None:
                 st.session_state["resume_text"] = resume_text
                 st.session_state["resume_file"] = uploaded_file.name
                 st.success(f"Resume processed ({len(resume_text)} chars)")
-            except Exception:
-                st.error("Could not read this PDF. Upload an unlocked PDF with selectable text.")
+            except Exception as exc:
+                st.error(f"Failed to process resume: {exc}")
             finally:
                 temp_path.unlink(missing_ok=True)
 
     with col2:
         st.subheader("Job Description")
         jd_text = st.text_area(
-            "Job description (minimum 100 characters)",
+            "Paste full JD",
             value=st.session_state.get("jd_text", ""),
             height=220,
             placeholder="Include role, company, skills, and responsibilities...",
         )
         st.session_state["jd_text"] = jd_text
-        company_context = st.text_area(
-            "Company context (optional)",
-            value=st.session_state.get("company_context", ""),
-            placeholder="Add relevant details about the team, product, or interview focus.",
-        )
-
-        st.session_state["company_context"] = company_context
 
         if jd_text and len(jd_text.strip()) < 100:
             st.warning("JD should be at least 100 characters.")
@@ -96,25 +91,10 @@ def show_setup() -> None:
     ready = bool(st.session_state.get("resume_text") and st.session_state.get(
         "jd_text") and len(st.session_state["jd_text"].strip()) >= 100)
 
-    has_key = bool(get_groq_api_key())
-    if not has_key:
-        st.info("Add GROQ_API_KEY to the local .env file to enable question generation.")
-
-    if st.button("Analyze and Generate Questions", disabled=not (ready and has_key), use_container_width=True):
+    if st.button("Analyze and Generate Questions", disabled=not ready, use_container_width=True):
         try:
-            from pipeline.jd_parser import match_to_company_profile, parse_jd_with_llm
-            from pipeline.question_generator import generate_questions
-            from pipeline.resume_processor import (
-                chunk_text,
-                extract_resume_insights_with_llm,
-                generate_embeddings,
-                retrieve_resume_context,
-                store_jd_in_chroma,
-                store_resume_in_chroma,
-            )
-
-            with st.spinner("Preparing retrieval and analyzing your resume and job description. The first run may download the embedding model."):
-                client = _get_search_index()
+            with st.spinner("Running resume + JD analysis..."):
+                client = initialize_chroma_db()
 
                 chunks = chunk_text(st.session_state["resume_text"])
                 embeddings, _ = generate_embeddings(chunks)
@@ -134,16 +114,17 @@ def show_setup() -> None:
                 resume_insights = extract_resume_insights_with_llm(
                     st.session_state["resume_text"]
                 )
+                st.session_state["resume_insights"] = resume_insights
 
                 parsed_jd = parse_jd_with_llm(
                     st.session_state["jd_text"],
                     chroma_client=client,
                     k_examples=3,
                 )
+                st.session_state["parsed_jd"] = parsed_jd
 
                 company_profile = match_to_company_profile(parsed_jd, client)
-                if company_context.strip():
-                    company_profile["provided_context"] = company_context.strip()
+                st.session_state["company_profile"] = company_profile
 
                 skill_query = " ".join(parsed_jd.get(
                     "skills", [])) or parsed_jd.get("role", "")
@@ -163,23 +144,16 @@ def show_setup() -> None:
                     resume_text=st.session_state["resume_text"],
                 )
 
-                st.session_state.update(
-                    questions=questions,
-                    resume_insights=resume_insights,
-                    parsed_jd=parsed_jd,
-                    company_profile=company_profile,
-                    interview_session=None,
-                    scores=None,
-                    pdf_path=None,
-                    page="preview",
-                )
+                st.session_state["questions"] = questions
+
+                st.success("Questions generated successfully")
+                st.session_state["page"] = "preview"
                 st.rerun()
 
-        except ImportError:
-            st.error("The interview dependencies are unavailable. See the local setup section in the README.")
-        except FileNotFoundError:
-            st.error("The local reference datasets are missing. Run the dataset generator described in the README.")
-        except Exception:
-            st.error("Question generation failed. Check your Groq configuration and network connection, then try again.")
+        except Exception as exc:
+            logger.error(f"Error in question generation: {str(exc)}")
+            st.error(
+                f"❌ Error: {str(exc)}\n\nPlease check your JD and try again.")
 
-    st.caption("Resume and job details are sent to Groq for analysis. Use fictional data for demos.")
+    st.caption(
+        "🔒 Your resume is processed securely and cleared after your session.")

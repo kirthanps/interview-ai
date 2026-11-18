@@ -161,8 +161,9 @@ def show_preview():
 
     # Gap analysis
     st.divider()
-    resume_skills = {skill.casefold() for skill in resume_insights.get("skills", []) if isinstance(skill, str)}
-    gaps = [skill for skill in parsed.get("skills", []) if skill.casefold() not in resume_skills]
+    resume_skills = set(resume_insights.get("skills", []))
+    required_skills = set(parsed.get("skills", []))
+    gaps = required_skills - resume_skills
 
     if gaps:
         st.warning(f"⚠️ **Skill Gaps Detected**: {', '.join(list(gaps)[:5])}...\n\n"
@@ -179,10 +180,6 @@ def show_preview():
     dist_str = " | ".join(
         [f"{count} {qtype.title()}" for qtype, count in type_dist.items()])
     st.info(f"Distribution: {dist_str}")
-
-    with st.expander("View generated questions"):
-        for index, question in enumerate(st.session_state["questions"], start=1):
-            st.write(f"{index}. {question.question}")
 
     # CTA
     st.divider()
